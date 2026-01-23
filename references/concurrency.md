@@ -9,15 +9,13 @@ Use this guide when you need concurrent execution or background work.
 - `Effect.forkIn` starts a child fiber in a specific scope for precise lifetime control.
 
 ## Example
+
 ```ts
 import * as Effect from "effect/Effect"
 import * as Fiber from "effect/Fiber"
 
 const program = Effect.gen(function*() {
   const fiber = yield* Effect.fork(Effect.succeed(1))
-  const result = yield* Fiber.join(fiber)
-  return result
+  return yield* Fiber.join(fiber)
 })
-
-Effect.runPromise(program)
 ```

@@ -6,3 +6,14 @@ Use this guide when loading or validating runtime configuration.
 - A `ConfigProvider` supplies the configuration values (the default provider reads from environment variables).
 - `Config` values are loaded by running effects that use the active provider.
 - Use `Effect.withConfigProvider` to override the provider for a scope of execution.
+
+## Example
+
+```ts
+import { Config, ConfigProvider } from "effect"
+
+const config = Config.boolean("BOOL")
+const provider = ConfigProvider.fromMap(new Map([["BOOL", "true"]]))
+
+const program = provider.load(config)
+```

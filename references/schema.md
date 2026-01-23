@@ -7,18 +7,14 @@ Use this guide when you need validation, parsing, or encoding.
 - Ensure TypeScript >= 5.4 and `strict` mode; consider enabling `exactOptionalPropertyTypes`.
 
 ## Example
+
 ```ts
-import * as Effect from "effect/Effect"
-import * as Schema from "effect/Schema"
+import { Schema } from "effect"
 
 const User = Schema.Struct({
-  id: Schema.Number,
-  name: Schema.String
+  id: Schema.NumberFromString
 })
 
-const decodeUser = Schema.decodeUnknown(User)
-
-const program = decodeUser({ id: 1, name: "Ada" })
-
-Effect.runPromise(program)
+const decode = Schema.decode(User)
+const program = decode({ id: "1" })
 ```

@@ -17,23 +17,16 @@ Use this guide when you need concrete setup details for logging, metrics, or tra
 - Logs can be recorded as span events when tracing is configured.
 - OpenTelemetry integration: install `@effect/opentelemetry` plus the relevant OpenTelemetry SDK packages; `@opentelemetry/api` is required as a peer dependency.
 
-### Example: Console exporter
-Use NodeSdk with a `BatchSpanProcessor` and `ConsoleSpanExporter` for diagnostics.
+#
+
+## Example
 
 ```ts
-const NodeSdkLive = NodeSdk.layer(() => ({
-  resource: { serviceName: "example" },
-  spanProcessor: new BatchSpanProcessor(new ConsoleSpanExporter())
-}))
-```
+import * as Effect from "effect/Effect"
+import * as OtlpTracer from "@effect/opentelemetry/OtlpTracer"
 
-### Example: OTLP HTTP exporter
-Use the OTLP HTTP exporter with the Node SDK for external backends.
-
-```ts
-const exporter = new OTLPTraceExporter()
-const NodeSdkLive = NodeSdk.layer(() => ({
-  resource: { serviceName: "example" },
-  spanProcessor: new BatchSpanProcessor(exporter)
-}))
+const program = OtlpTracer.make({
+  url: "http://localhost:4318/v1/traces",
+  resource: { serviceName: "my-service" }
+}).pipe(Effect.scoped)
 ```

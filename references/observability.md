@@ -21,3 +21,16 @@ For concrete configuration examples (loggers, metrics tagging, tracing exporters
 - Use `Effect.annotateCurrentSpan` to attach key/value attributes to the current span.
 - Logs can be captured as span events when tracing is configured.
 - Export spans via OpenTelemetry using `@effect/opentelemetry` and an SDK (e.g. NodeSdk).
+
+## Example
+
+```ts
+import { Effect, Logger, LogLevel } from "effect"
+
+const logger = Logger.make((o) => String(o.message))
+
+const program = Effect.logInfo("hello").pipe(
+  Effect.provide(Logger.replace(Logger.defaultLogger, logger)),
+  Logger.withMinimumLogLevel(LogLevel.Info)
+)
+```

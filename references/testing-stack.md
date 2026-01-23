@@ -9,16 +9,11 @@ Use this guide when tests need more than time control.
 - For TestConsole/TestRandom and other test services, consult the API reference and layer them into `TestContext`.
 
 ## Example
+
 ```ts
-import * as Config from "effect/Config"
-import * as ConfigProvider from "effect/ConfigProvider"
-import * as Effect from "effect/Effect"
-import * as TestContext from "effect/TestContext"
+import { Duration, Effect, TestServices } from "effect"
 
-const program = Effect.withConfigProvider(
-  Config.string("APP_NAME"),
-  ConfigProvider.fromMap(new Map([["APP_NAME", "demo"]]))
+const program = TestServices.provideLive(
+  Effect.sleep(Duration.millis(5))
 )
-
-Effect.runPromise(program.pipe(Effect.provide(TestContext.TestContext)))
 ```

@@ -20,3 +20,16 @@ Use this guide for streaming and message-passing patterns.
 - STM types like `TQueue` and `TPubSub` integrate with streams via `Stream.fromTQueue` and `Stream.fromTPubSub`.
 - `Channel` is a lower-level stream primitive; prefer `Stream` unless you need custom chunking.
 - For STM and Channel APIs, consult the Effect API reference.
+
+## Example
+
+```ts
+import * as Effect from "effect/Effect"
+import * as Queue from "effect/Queue"
+
+const program = Effect.gen(function*() {
+  const queue = yield* Queue.unbounded<number>()
+  yield* Queue.offer(queue, 1)
+  return yield* Queue.take(queue)
+})
+```

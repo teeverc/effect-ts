@@ -7,3 +7,16 @@ Use this guide when you need to inspect or manipulate failures.
 - Use `Effect.cause` to access `Cause<E>` and `Effect.either` for `Either<E, A>`.
 - Use `Effect.catchAllCause` to handle typed errors and defects together.
 - Prefer `Cause`-aware handlers for diagnostics and reporting.
+
+## Example
+
+```ts
+import * as Effect from "effect/Effect"
+
+const program = Effect.sync(() => {
+  throw new Error("boom")
+}).pipe(
+  Effect.sandbox,
+  Effect.either
+)
+```

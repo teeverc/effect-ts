@@ -8,20 +8,13 @@ Use this guide when modeling failures in Effect.
 - When in doubt, start with a small, explicit error ADT and expand only as requirements demand.
 
 ## Example
+
 ```ts
-import * as Data from "effect/Data"
-import * as Effect from "effect/Effect"
+import { Data, Effect } from "effect"
 
-class NotFound extends Data.TaggedError("NotFound")<{ readonly id: string }>() {}
+class NotFound extends Data.TaggedError("NotFound")<{}> {}
 
-const findUser = (id: string) =>
-  id === "1"
-    ? Effect.succeed({ id, name: "Ada" })
-    : Effect.fail(new NotFound({ id }))
-
-const program = findUser("2").pipe(
-  Effect.catchAll((err) => Effect.succeed({ id: err.id, name: "guest" }))
+const program = Effect.fail(new NotFound()).pipe(
+  Effect.catchTag("NotFound", () => Effect.succeed("guest"))
 )
-
-Effect.runPromise(program)
 ```

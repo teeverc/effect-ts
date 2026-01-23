@@ -14,20 +14,15 @@ Use this guide when modeling dependencies and wiring services.
 - Compose layers to build dependency graphs and provide the environment at program startup.
 
 ## Example
+
 ```ts
-import * as Context from "effect/Context"
 import * as Effect from "effect/Effect"
-import * as Layer from "effect/Layer"
 
-class Clock extends Context.Tag("Clock")<Clock, { readonly now: Effect.Effect<number> }>() {
-  static Live = Layer.succeed(Clock, { now: Effect.sync(() => Date.now()) })
-}
+class Prefix extends Effect.Service<Prefix>()("Prefix", {
+  sync: () => ({ prefix: "PRE" })
+}) {}
 
-const program = Effect.gen(function*() {
-  const clock = yield* Clock
-  const now = yield* clock.now
-  return now
-})
-
-Effect.runPromise(program.pipe(Effect.provide(Clock.Live)))
+const program = Prefix.use((p) => p.prefix).pipe(
+  Effect.provide(Prefix.Default)
+)
 ```

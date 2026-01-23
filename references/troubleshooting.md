@@ -16,3 +16,16 @@ Use this guide when a task fails or produces confusing runtime behavior.
 2. Use `Effect.tap` to log intermediate values.
 3. Use `Effect.catchAllCause` to log or format causes.
 4. If using layers, print or log layer composition and ensure all tags are provided.
+
+## Example
+
+```ts
+import { Cause, Effect } from "effect"
+
+const program = Effect.fail(new Error("boom")).pipe(
+  Effect.withSpan("spanA"),
+  Effect.sandbox,
+  Effect.flip,
+  Effect.map(Cause.pretty)
+)
+```

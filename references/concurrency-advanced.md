@@ -9,3 +9,15 @@ Use this guide when coordinating fibers beyond simple forking.
 - Use `FiberRef` for fiber-local values; use `FiberRef.get`/`FiberRef.set`/`FiberRef.update` to read and update.
 - Use supervision to keep child fibers tied to a parent scope so they are interrupted when the parent exits.
 - Prefer structured concurrency: keep child fibers tied to a scope unless you intentionally detach.
+
+## Example
+
+```ts
+import * as Effect from "effect/Effect"
+import * as Fiber from "effect/Fiber"
+
+const program = Effect.gen(function*() {
+  const fiber = yield* Effect.fork(Effect.never)
+  yield* Fiber.interrupt(fiber)
+})
+```

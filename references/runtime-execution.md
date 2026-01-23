@@ -9,18 +9,10 @@ Use this guide when deciding how/where to run effects.
 - Use `Effect.runFork` when you need a background fiber.
 
 ## Example
+
 ```ts
-import * as Effect from "effect/Effect"
-import * as Fiber from "effect/Fiber"
+import { Effect, Runtime } from "effect"
 
-const asyncEffect = Effect.tryPromise({
-  try: () => Promise.resolve("ok")
-})
-
-const syncEffect = Effect.sync(() => 123)
-
-const fiber = Effect.runFork(asyncEffect)
-
-Effect.runPromise(Fiber.join(fiber))
-Effect.runSync(syncEffect)
+const runtime = Runtime.defaultRuntime
+const result = Runtime.runSync(runtime)(Effect.succeed(1))
 ```
