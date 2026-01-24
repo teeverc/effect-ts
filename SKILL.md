@@ -26,6 +26,7 @@ For the most up-to-date documentation, see https://effect.website/docs and https
 - If it involves retries/backoff or schedule composition, open `references/scheduling-retry.md`.
 - If it involves streams, queues, pubsub, or STM, open `references/streams-queues-stm.md`.
 - If it involves HTTP clients or external APIs, open `references/http-client.md`.
+- If it involves HTTP servers or API definitions, open `references/http-server.md`.
 - If it involves request batching or data loaders, open `references/request-resolver.md`.
 - If it involves caching or memoization, open `references/caching.md`.
 - If it involves configuration or config providers, open `references/configuration.md`.
@@ -74,6 +75,7 @@ For the most up-to-date documentation, see https://effect.website/docs and https
 - `references/scheduling-retry.md` - retry policies, backoff, and schedule composition.
 - `references/streams-queues-stm.md` - Stream, Queue, PubSub, and STM touchpoints.
 - `references/http-client.md` - HTTP client patterns and external API calls.
+- `references/http-server.md` - HTTP server and HttpApi patterns.
 - `references/request-resolver.md` - Request/RequestResolver batching patterns.
 - `references/caching.md` - caching and memoization utilities.
 - `references/configuration.md` - Config, ConfigProvider, and runtime configuration.
