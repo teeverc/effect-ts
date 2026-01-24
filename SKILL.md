@@ -9,6 +9,8 @@ description: "Effect-TS (Effect) guidance for TypeScript: designing and implemen
 
 Provide workflows, patterns, and best practices for building Effect-based TypeScript programs, with focused references for errors, dependencies, resources, runtime execution, generators, schema, and testing.
 
+For the most up-to-date documentation, see https://effect.website/docs and https://effect.website/docs/platform. For internal lookups, the effect-docs MCP can be used to search and fetch API references (https://github.com/tim-smart/effect-mcp).
+
 ## Quick Triage
 
 - If it needs core Effect data types or combinators, open `references/core-usage.md`.
@@ -23,6 +25,9 @@ Provide workflows, patterns, and best practices for building Effect-based TypeSc
 - If it involves schedules or repetition, open `references/scheduling.md`.
 - If it involves retries/backoff or schedule composition, open `references/scheduling-retry.md`.
 - If it involves streams, queues, pubsub, or STM, open `references/streams-queues-stm.md`.
+- If it involves HTTP clients or external APIs, open `references/http-client.md`.
+- If it involves request batching or data loaders, open `references/request-resolver.md`.
+- If it involves caching or memoization, open `references/caching.md`.
 - If it involves configuration or config providers, open `references/configuration.md`.
 - If it involves advanced config or redaction, open `references/configuration-advanced.md`.
 - If it involves logs, metrics, or tracing, open `references/observability.md`.
@@ -68,6 +73,9 @@ Provide workflows, patterns, and best practices for building Effect-based TypeSc
 - `references/scheduling.md` - schedules, repetition, and timing.
 - `references/scheduling-retry.md` - retry policies, backoff, and schedule composition.
 - `references/streams-queues-stm.md` - Stream, Queue, PubSub, and STM touchpoints.
+- `references/http-client.md` - HTTP client patterns and external API calls.
+- `references/request-resolver.md` - Request/RequestResolver batching patterns.
+- `references/caching.md` - caching and memoization utilities.
 - `references/configuration.md` - Config, ConfigProvider, and runtime configuration.
 - `references/configuration-advanced.md` - nested config, redaction, and test providers.
 - `references/observability.md` - logging, metrics, and tracing overview.
