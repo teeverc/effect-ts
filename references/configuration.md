@@ -2,18 +2,41 @@
 
 Use this guide when loading or validating runtime configuration.
 
-- `Config` describes the structure and requirements of the configuration your program needs.
-- A `ConfigProvider` supplies the configuration values (the default provider reads from environment variables).
-- `Config` values are loaded by running effects that use the active provider.
-- Use `Effect.withConfigProvider` to override the provider for a scope of execution.
+## Mental model
 
-## Example
+- `Config` describes structure and types.
+- A `ConfigProvider` supplies values (env by default).
+- Config is loaded by running effects.
+
+## Patterns
+
+- Use `Config.all` to build structured config.
+- Use `Config.withDefault` for optional values.
+- Use `ConfigProvider.fromEnv` or `fromMap` for overrides.
+
+## Walkthrough: structured config from env
 
 ```ts
-import { Config, ConfigProvider } from "effect"
+import * as Config from "effect/Config"
+import * as ConfigProvider from "effect/ConfigProvider"
+import * as Effect from "effect/Effect"
 
-const config = Config.boolean("BOOL")
-const provider = ConfigProvider.fromMap(new Map([["BOOL", "true"]]))
+const AppConfig = Config.all({
+  host: Config.string("HOST"),
+  port: Config.port("PORT").pipe(Config.withDefault(3000)),
+  timeout: Config.duration("TIMEOUT").pipe(Config.withDefault("30 seconds"))
+})
 
-const program = provider.load(config)
+const provider = ConfigProvider.fromEnv()
+
+const program = provider.load(AppConfig).pipe(
+  Effect.tap((config) => Effect.log(`host=${config.host}`))
+)
 ```
+
+## Pitfalls
+
+- Reading config inside libraries instead of at startup.
+- Using untyped strings for structured config.
+- Expecting `withDefault` to cover parse errors (it only applies when the value is missing).
+- Nested keys depend on provider delimiters (configure `fromEnv`/`fromMap` accordingly).

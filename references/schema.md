@@ -2,19 +2,39 @@
 
 Use this guide when you need validation, parsing, or encoding.
 
-- `effect/Schema` provides schemas for validation and transformation.
-- Use schemas to decode/encode data, assert invariants, or derive JSON Schema and pretty printers.
-- Ensure TypeScript >= 5.4 and `strict` mode; consider enabling `exactOptionalPropertyTypes`.
+## Mental model
 
-## Example
+- Schemas describe structure and transformations.
+- `decode` validates and transforms input to a typed value.
+- `encode` converts typed values to an encoded representation.
+
+## Patterns
+
+- Use `Schema.Struct` for objects.
+- Use `Schema.NumberFromString` to parse string inputs.
+- Use `Schema.decode` for Effect-based decoding.
+
+## Walkthrough: decode and encode
 
 ```ts
-import { Schema } from "effect"
+import * as Effect from "effect/Effect"
+import * as Schema from "effect/Schema"
 
 const User = Schema.Struct({
-  id: Schema.NumberFromString
+  id: Schema.NumberFromString,
+  name: Schema.String
 })
 
 const decode = Schema.decode(User)
-const program = decode({ id: "1" })
+const encode = Schema.encode(User)
+
+const program = Effect.gen(function*() {
+  const user = yield* decode({ id: "1", name: "Ada" })
+  return yield* encode(user)
+})
 ```
+
+## Pitfalls
+
+- Using sync decoders for async schemas.
+- Skipping schema-based validation at boundaries.

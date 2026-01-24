@@ -2,19 +2,34 @@
 
 Use this guide when you need to inspect or report effect results.
 
-- Use `Exit` as the data type that represents the result of running an effect.
-- `Exit` is either `Success` or `Failure`.
-- A `Failure` carries a `Cause`, which captures the reasons for failure.
-- Use `Exit`/`Cause` for diagnostics, logging, or retry/reporting logic that needs structured failure data.
+## Mental model
 
-## Example
+- `Exit` is the result of running an effect: `Success` or `Failure`.
+- A `Failure` contains a `Cause`, which captures failures, defects, and interruptions.
+- Use `Exit`/`Cause` for diagnostics or reporting where you need full result data.
+
+## Patterns
+
+- Use `Effect.exit` to turn failures into `Exit` values.
+- Use `Exit.isFailure` / `Exit.isSuccess` to branch.
+- Use `Cause.pretty` to render structured failures.
+
+## Walkthrough: render a failure cause
 
 ```ts
+import * as Cause from "effect/Cause"
 import * as Effect from "effect/Effect"
 import * as Exit from "effect/Exit"
 
 const program = Effect.fail("boom").pipe(
   Effect.exit,
-  Effect.map(Exit.isFailure)
+  Effect.map((exit) =>
+    Exit.isFailure(exit) ? Cause.pretty(exit.cause) : "ok"
+  )
 )
 ```
+
+## Pitfalls
+
+- Using `Exit` when `Either` is sufficient for business logic.
+- Ignoring interruptions when reporting failures.

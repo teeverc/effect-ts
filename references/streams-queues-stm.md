@@ -2,34 +2,36 @@
 
 Use this guide for streaming and message-passing patterns.
 
-## Queue
-- `Queue` is an in-memory structure with backpressure.
-- Choose `bounded`, `sliding`, `dropping`, or `unbounded` based on capacity and overflow policy.
-- Use `offer`/`take` to enqueue and dequeue values.
+## Mental model
 
-## PubSub
-- `PubSub` broadcasts values to all subscribers rather than a single consumer.
-- Use it when multiple consumers should see the same events.
+- Streams emit 0..N values over time.
+- Queues provide backpressure and point-to-point messaging.
+- STM provides composable atomic transactions.
 
-## Stream
-- A `Stream` is an effectful source that can emit 0..N values.
-- Create with `Stream.make`, `Stream.succeed`, or `Stream.empty`.
-- Consume with `runCollect`, `runDrain`, or `runForEach`.
+## Patterns
 
-## STM / Channel
-- STM types like `TQueue` and `TPubSub` integrate with streams via `Stream.fromTQueue` and `Stream.fromTPubSub`.
-- `Channel` is a lower-level stream primitive; prefer `Stream` unless you need custom chunking.
-- For STM and Channel APIs, consult the Effect API reference.
+- Use `Stream.fromQueue` to turn a queue into a stream.
+- Use `Queue.bounded` for backpressure.
+- Use `STM.commit` to run STM transactions.
 
-## Example
+## Walkthrough: queue to stream
 
 ```ts
 import * as Effect from "effect/Effect"
 import * as Queue from "effect/Queue"
+import * as Stream from "effect/Stream"
 
 const program = Effect.gen(function*() {
-  const queue = yield* Queue.unbounded<number>()
+  const queue = yield* Queue.bounded<number>(10)
   yield* Queue.offer(queue, 1)
-  return yield* Queue.take(queue)
+  yield* Queue.offer(queue, 2)
+
+  const stream = Stream.fromQueue(queue)
+  return yield* Stream.runCollect(stream.pipe(Stream.take(2)))
 })
 ```
+
+## Pitfalls
+
+- Using unbounded queues when backpressure is needed.
+- Forgetting to shut down queues in long-lived apps.

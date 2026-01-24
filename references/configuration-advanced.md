@@ -2,32 +2,46 @@
 
 Use this guide when config needs structure, secrets, or test overrides.
 
-- Use `Config.nested` to model nested configuration trees.
-- Use `Config.redacted` for sensitive values to avoid leaking secrets.
-- Use `ConfigProvider.fromMap` for test fixtures or local overrides.
-- Use `Effect.withConfigProvider` to scope a provider for a specific effect.
-- Prefer typed config and fail fast at startup.
+## Mental model
 
-## Example
+- Nest config to keep naming consistent across providers.
+- Redact secrets so they can be logged safely.
+- Providers can be swapped per scope for tests.
+
+## Patterns
+
+- Use `Config.nested` to model trees.
+- Use `Config.redacted` for secrets.
+- Use `ConfigProvider.fromMap` for tests.
+
+## Walkthrough: nested config with redacted secret
 
 ```ts
-import { Config, ConfigProvider } from "effect"
+import * as Config from "effect/Config"
+import * as ConfigProvider from "effect/ConfigProvider"
+import * as Effect from "effect/Effect"
 
-const hostPort = Config.all({
-  host: Config.string("host"),
-  port: Config.integer("port")
-})
+const DatabaseConfig = Config.all({
+  url: Config.string("URL"),
+  password: Config.redacted("PASSWORD")
+}).pipe(Config.nested("DB"))
 
-const service = Config.all({
-  hostPort: hostPort.pipe(Config.nested("hostPort")),
-  timeout: Config.integer("timeout")
-})
+const provider = ConfigProvider.fromMap(
+  new Map([
+    ["DB.URL", "postgres://localhost/app"],
+    ["DB.PASSWORD", "secret"]
+  ])
+)
 
-const provider = ConfigProvider.fromMap(new Map([
-  ["hostPort.host", "localhost"],
-  ["hostPort.port", "5432"],
-  ["timeout", "30"]
-]))
-
-const program = provider.load(service)
+const program = provider.load(DatabaseConfig).pipe(
+  Effect.map((config) => ({
+    url: config.url,
+    password: config.password
+  }))
+)
 ```
+
+## Pitfalls
+
+- Logging secrets without redaction.
+- Mixing nested and flat keys inconsistently.

@@ -2,30 +2,29 @@
 
 Use this guide when a task fails or produces confusing runtime behavior.
 
-## Common pitfalls
-- **Effect not running**: you likely built an effect but never called a `run*` function at the program edge.
-- **Missing environment / service not found**: ensure required services are provided with layers before running.
-- **Unhandled errors**: make sure the error channel type matches the expected domain errors; use `catchAll`/`match`.
-- **Unexpected defect**: use `Effect.sandbox` and inspect the `Cause` to diagnose defects.
-- **Resource leaks**: ensure resources are acquired with `Scope`/`Layer.scoped` and closed on scope finalization.
-- **Fiber leaks**: prefer structured concurrency; avoid daemon fibers unless truly detached.
-- **Test flakiness**: control time with `TestClock` and provide deterministic config/providers.
+## Common issues
 
-## Diagnostic steps
-1. Inspect the effect type (`Effect<A, E, R>`) for missing environment or error types.
-2. Use `Effect.tap` to log intermediate values.
-3. Use `Effect.catchAllCause` to log or format causes.
-4. If using layers, print or log layer composition and ensure all tags are provided.
+- Effect never runs: missing `run*` at the edge.
+- Missing services: provide required layers.
+- Async used with `runSync`: yields AsyncFiberException.
+- Fiber leaks: fork without scope/join.
+
+## Diagnostics
+
+- Inspect the effect type `Effect<A, E, R>`.
+- Use `Effect.sandbox` + `Cause.pretty` to see defects.
+- Use `Effect.tap`/`Effect.log` to observe intermediate values.
 
 ## Example
 
 ```ts
-import { Cause, Effect } from "effect"
+import * as Cause from "effect/Cause"
+import * as Effect from "effect/Effect"
 
-const program = Effect.fail(new Error("boom")).pipe(
-  Effect.withSpan("spanA"),
+const program = Effect.sync(() => {
+  throw new Error("boom")
+}).pipe(
   Effect.sandbox,
-  Effect.flip,
-  Effect.map(Cause.pretty)
+  Effect.catchAllCause((cause) => Effect.succeed(Cause.pretty(cause)))
 )
 ```

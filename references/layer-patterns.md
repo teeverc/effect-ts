@@ -2,26 +2,36 @@
 
 Use this guide when wiring services and environments.
 
-- Use layers to build dependency graphs; keep construction and acquisition in layers.
-- Combine layers with `Layer.merge` or `Layer.provideMerge` to assemble environments.
-- Convert a layer to an effect with `Layer.launch` when you need acquisition as an effect.
-- Use `Layer.effect` for simple effectful construction and `Layer.scoped` for resources with lifetimes.
-- Layers are memoized by reference equality; reuse layer instances to avoid duplicate acquisition.
-- In tests, build stub layers and provide them to the effect under test.
+## Mental model
 
-## Example
+- Layers build dependency graphs and manage construction.
+- Use `Layer.scoped` for resources with lifetimes.
+- Provide layers at app boundaries and tests.
+
+## Patterns
+
+- Use `Layer.succeed` for pure values.
+- Use `Layer.effect` or `Layer.scoped` for effectful acquisition.
+- Combine with `Layer.merge` and provide with `Effect.provide`.
+
+## Walkthrough: service + layer
 
 ```ts
-import * as Context from "effect/Context"
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
 
-const ATag = Context.GenericTag<string>("A")
-const BTag = Context.GenericTag<number>("B")
+class Greeter extends Effect.Service<Greeter>()("Greeter", {
+  sync: () => ({ greet: (name: string) => `hi ${name}` })
+}) {}
 
-const layer = Layer.succeed(ATag, "a").pipe(
-  Layer.merge(Layer.succeed(BTag, 1))
+const Live = Greeter.Default
+
+const program = Greeter.use((g) => g.greet("Ada")).pipe(
+  Effect.provide(Live)
 )
-
-const program = layer.pipe(Layer.build, Effect.scoped)
 ```
+
+## Pitfalls
+
+- Running effects in constructors instead of layers.
+- Creating a fresh layer instance per use (breaks memoization).

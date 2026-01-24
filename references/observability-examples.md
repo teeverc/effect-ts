@@ -1,25 +1,34 @@
 # Observability Examples (Config and Exporters)
 
-Use this guide when you need concrete setup details for logging, metrics, or tracing.
+Use this guide for concrete setup details.
 
-## Logging
-- Default logging via `Effect.log` emits at `INFO` level; use `Logger.withMinimumLogLevel` to change the minimum level.
-- Log output includes metadata such as timestamp, log level, and fiber id.
-- Built-in loggers include `logfmtLogger` and `structuredLogger` (see logging docs for additional options).
-- Combine loggers with `Logger.zip` when you want multiple outputs.
+## Logging example
 
-## Metrics
-- Effect Metrics supports `Counter`, `Gauge`, `Histogram`, `Summary`, and `Frequency`.
-- Tag a single metric with `Metric.tagged`, or tag multiple metrics for an effect with `Effect.tagMetrics`.
+```ts
+import * as Effect from "effect/Effect"
+import * as Logger from "effect/Logger"
+import * as LogLevel from "effect/LogLevel"
 
-## Tracing
-- Create spans with `Effect.withSpan` and add attributes with `Effect.annotateCurrentSpan`.
-- Logs can be recorded as span events when tracing is configured.
-- OpenTelemetry integration: install `@effect/opentelemetry` plus the relevant OpenTelemetry SDK packages; `@opentelemetry/api` is required as a peer dependency.
+const program = Effect.logInfo("hello").pipe(
+  Effect.provide(Logger.replace(Logger.defaultLogger, Logger.prettyLogger)),
+  Logger.withMinimumLogLevel(LogLevel.Info)
+)
+```
 
-#
+## Metrics example
 
-## Example
+```ts
+import * as Effect from "effect/Effect"
+import * as Metric from "effect/Metric"
+
+const counter = Metric.counter("requests")
+
+const program = Effect.succeed(1).pipe(
+  Metric.increment(counter)
+)
+```
+
+## Tracing example (OpenTelemetry)
 
 ```ts
 import * as Effect from "effect/Effect"

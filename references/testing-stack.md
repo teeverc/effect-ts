@@ -2,18 +2,27 @@
 
 Use this guide when tests need more than time control.
 
-- Use `TestContext` to provide test services (including `TestClock`).
-- Provide stubs via layers and `Effect.provide`/`Layer.provide` in tests.
-- Override config with `ConfigProvider.fromMap` and `Effect.withConfigProvider`.
-- Prefer `Effect.runPromise` in tests to evaluate effects and assert results.
-- For TestConsole/TestRandom and other test services, consult the API reference and layer them into `TestContext`.
+## Mental model
 
-## Example
+- Test services are provided via `TestContext`.
+- Use `TestServices` helpers to swap live services.
+
+## Patterns
+
+- Use `TestServices.provideWithLive` when mixing live and test services.
+- Use `TestServices.live` to run an effect with live services.
+
+## Walkthrough: provide live services
 
 ```ts
-import { Duration, Effect, TestServices } from "effect"
+import * as Effect from "effect/Effect"
+import * as TestServices from "effect/TestServices"
 
-const program = TestServices.provideLive(
-  Effect.sleep(Duration.millis(5))
-)
+const program = Effect.succeed("ok")
+
+const test = TestServices.provideWithLive(program, (live) => live)
 ```
+
+## Pitfalls
+
+- Forgetting to use `TestContext` in test environments.

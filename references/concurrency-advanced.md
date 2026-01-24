@@ -2,22 +2,32 @@
 
 Use this guide when coordinating fibers beyond simple forking.
 
-- Effects run on fibers; use `Effect.fork` to start child fibers and `Fiber.join`/`Fiber.interrupt` to coordinate.
-- Interruption is cooperative; use `Effect.onInterrupt` for cleanup.
-- Use `Effect.race`, `Effect.raceAll`, `Effect.raceFirst`, or `Effect.raceWith` for races.
-- Control parallelism with `Effect.all` concurrency options (`inherit`, bounded numbers, or `unbounded`).
-- Use `FiberRef` for fiber-local values; use `FiberRef.get`/`FiberRef.set`/`FiberRef.update` to read and update.
-- Use supervision to keep child fibers tied to a parent scope so they are interrupted when the parent exits.
-- Prefer structured concurrency: keep child fibers tied to a scope unless you intentionally detach.
+## Mental model
 
-## Example
+- Interruption is cooperative; attach cleanup with `Effect.onInterrupt`.
+- Supervisors and scopes keep child fibers bound to a lifetime.
+- `FiberRef` provides fiber-local state.
+
+## Patterns
+
+- Use `Effect.forkScoped` to tie a fiber to a scope.
+- Use `Fiber.interrupt` and `Fiber.join` to manage lifetimes.
+- Use `FiberRef.make` + `FiberRef.get`/`set` for context-like state.
+
+## Walkthrough: fiber-local state
 
 ```ts
 import * as Effect from "effect/Effect"
-import * as Fiber from "effect/Fiber"
+import * as FiberRef from "effect/FiberRef"
 
 const program = Effect.gen(function*() {
-  const fiber = yield* Effect.fork(Effect.never)
-  yield* Fiber.interrupt(fiber)
+  const ref = yield* FiberRef.make(0)
+  yield* FiberRef.set(ref, 1)
+  return yield* FiberRef.get(ref)
 })
 ```
+
+## Pitfalls
+
+- Detaching fibers without a scope.
+- Assuming interruption is preemptive.

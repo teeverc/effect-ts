@@ -2,17 +2,37 @@
 
 Use this guide when deciding how/where to run effects.
 
-- The `run*` functions are the runtime entrypoints that execute effects.
-- Keep `run*` calls at the program edge (CLI entrypoint, server bootstrap, tests).
-- Use `Effect.runPromise` (or similar async variants) for async effects.
-- Use `Effect.runSync` only for fully synchronous effects.
-- Use `Effect.runFork` when you need a background fiber.
+## Mental model
 
-## Example
+- Effects are descriptions; `run*` executes them.
+- Keep `run*` calls at the edge (CLI entrypoints, server bootstrap, tests).
+- Choose a runner based on sync/async and whether you need `Exit`.
+
+## Patterns
+
+- Use `Effect.runPromise` for async execution.
+- Use `Effect.runSync` only for fully synchronous effects.
+- Use `Effect.runFork` for background fibers.
+- Use `Effect.runPromiseExit` / `Effect.runSyncExit` when you need `Exit`.
+
+## Walkthrough: run and inspect Exit
 
 ```ts
-import { Effect, Runtime } from "effect"
+import * as Effect from "effect/Effect"
+import * as Exit from "effect/Exit"
 
-const runtime = Runtime.defaultRuntime
-const result = Runtime.runSync(runtime)(Effect.succeed(1))
+const program = Effect.fail("boom")
+
+Effect.runPromiseExit(program).then((exit) =>
+  Exit.match(exit, {
+    onFailure: () => console.log("failed"),
+    onSuccess: (value) => console.log(value)
+  })
+)
 ```
+
+## Pitfalls
+
+- Calling `run*` in library code (breaks composability).
+- Using `runSync` on async effects.
+- Dropping `Exit` when you need failure details.
