@@ -17,8 +17,7 @@ Use this guide when wiring services and environments.
 ## Walkthrough: service + layer
 
 ```ts
-import * as Effect from "effect/Effect"
-import * as Layer from "effect/Layer"
+import { Effect, Layer } from "effect"
 
 class Greeter extends Effect.Service<Greeter>()("Greeter", {
   sync: () => ({ greet: (name: string) => `hi ${name}` })
@@ -35,3 +34,8 @@ const program = Greeter.use((g) => g.greet("Ada")).pipe(
 
 - Running effects in constructors instead of layers.
 - Creating a fresh layer instance per use (breaks memoization).
+
+## Docs
+
+- `https://effect.website/docs/requirements-management/layers/`
+- `https://effect.website/docs/requirements-management/layer-memoization/`

@@ -17,9 +17,7 @@ Use this guide when config needs structure, secrets, or test overrides.
 ## Walkthrough: nested config with redacted secret
 
 ```ts
-import * as Config from "effect/Config"
-import * as ConfigProvider from "effect/ConfigProvider"
-import * as Effect from "effect/Effect"
+import { Config, ConfigProvider, Effect } from "effect"
 
 const DatabaseConfig = Config.all({
   url: Config.string("URL"),
@@ -33,7 +31,8 @@ const provider = ConfigProvider.fromMap(
   ])
 )
 
-const program = provider.load(DatabaseConfig).pipe(
+const program = DatabaseConfig.pipe(
+  Effect.withConfigProvider(provider),
   Effect.map((config) => ({
     url: config.url,
     password: config.password
@@ -45,3 +44,8 @@ const program = provider.load(DatabaseConfig).pipe(
 
 - Logging secrets without redaction.
 - Mixing nested and flat keys inconsistently.
+
+## Docs
+
+- `https://effect.website/docs/additional-resources/api-reference/`
+- `https://effect.website/docs/data-types/redacted/`

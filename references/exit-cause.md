@@ -17,9 +17,7 @@ Use this guide when you need to inspect or report effect results.
 ## Walkthrough: render a failure cause
 
 ```ts
-import * as Cause from "effect/Cause"
-import * as Effect from "effect/Effect"
-import * as Exit from "effect/Exit"
+import { Cause, Effect, Exit } from "effect"
 
 const program = Effect.fail("boom").pipe(
   Effect.exit,
@@ -33,3 +31,8 @@ const program = Effect.fail("boom").pipe(
 
 - Using `Exit` when `Either` is sufficient for business logic.
 - Ignoring interruptions when reporting failures.
+
+## Docs
+
+- `https://effect.website/docs/data-types/exit/`
+- `https://effect.website/docs/data-types/cause/`

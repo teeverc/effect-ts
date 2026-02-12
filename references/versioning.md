@@ -32,3 +32,8 @@ Use this guide when adapting examples across Effect versions.
 - Updating Effect without updating related docs and examples.
 - Ignoring changes in adjacent types (e.g., Layer/Stream) after a version bump.
 
+## Docs
+
+- `https://effect.website/docs/additional-resources/api-reference/`
+- `https://tim-smart.github.io/effect-io-ai/`
+

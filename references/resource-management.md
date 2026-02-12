@@ -21,7 +21,7 @@ Use this guide when acquiring and releasing resources.
 3. Use the resource inside `Effect.scoped` so cleanup is guaranteed.
 
 ```ts
-import * as Effect from "effect/Effect"
+import { Effect } from "effect"
 
 const openFile = (path: string) => Effect.sync(() => ({ path }))
 const closeFile = (file: { path: string }) => Effect.sync(() => undefined)
@@ -53,10 +53,15 @@ const program = Effect.scoped(
 ## Example
 
 ```ts
-import * as Effect from "effect/Effect"
+import { Effect } from "effect"
 
 const program = Effect.acquireRelease(
   Effect.sync(() => "resource"),
   () => Effect.sync(() => undefined)
 ).pipe(Effect.scoped)
 ```
+
+## Docs
+
+- `https://effect.website/docs/resource-management/introduction/`
+- `https://effect.website/docs/resource-management/scope/`

@@ -59,3 +59,8 @@ Layer.launch(ServerLive).pipe(NodeRuntime.runMain)
 - Missing the platform server layer in the environment.
 - Implementing endpoints without wiring the group into `HttpApiBuilder.api`.
 - Running effects inside handlers that should be provided via layers.
+
+## Docs
+
+- `https://effect.website/docs/platform/introduction/`
+- `https://effect.website/docs/platform/runtime/`

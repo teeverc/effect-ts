@@ -13,12 +13,12 @@ Use this guide when coordinating fibers beyond simple forking.
 - Use `Effect.forkScoped` to tie a fiber to a scope.
 - Use `Fiber.interrupt` and `Fiber.join` to manage lifetimes.
 - Use `FiberRef.make` + `FiberRef.get`/`set` for context-like state.
+- Use `Deferred`/`Queue`/`Semaphore` for explicit coordination instead of ad-hoc polling.
 
 ## Walkthrough: fiber-local state
 
 ```ts
-import * as Effect from "effect/Effect"
-import * as FiberRef from "effect/FiberRef"
+import { Effect, FiberRef } from "effect"
 
 const program = Effect.gen(function*() {
   const ref = yield* FiberRef.make(0)
@@ -31,3 +31,10 @@ const program = Effect.gen(function*() {
 
 - Detaching fibers without a scope.
 - Assuming interruption is preemptive.
+
+## Docs
+
+- `https://effect.website/docs/concurrency/basic-concurrency/`
+- `https://effect.website/docs/concurrency/deferred/`
+- `https://effect.website/docs/concurrency/semaphore/`
+- `https://effect.website/docs/observability/supervisor/`

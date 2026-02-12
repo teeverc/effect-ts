@@ -8,6 +8,7 @@ Use this guide for everyday Effect composition and common data types.
 - `Chunk` is an immutable, indexed collection for efficient sequences. Use for building collections without mutation.
 - `Duration` is a typed time value for delays and schedules. Use with `Effect.sleep` and `Schedule` combinators.
 - `Equal` defines structural equality for domain types. Use to compare values by content, not reference.
+- For richer domain primitives (`DateTime`, `BigDecimal`, `HashSet`, `Redacted`), see `data-types-advanced.md`.
 
 ## Common combinators
 - Use `Effect.map` to transform success values, `Effect.flatMap` to chain effects, and `Effect.tap` for side effects.
@@ -21,44 +22,53 @@ Use this guide for everyday Effect composition and common data types.
 - Prefer small, composable effects over large monoliths.
 - Use `Effect.gen` for complex workflows; use direct combinators for simple transformations.
 - Handle expected errors with `Either` or `Effect.catchAll`; let defects propagate for unexpected failures.
+- When comparing or sorting domain values, centralize semantics via `behavior-traits.md`.
 
 ## Example
 
 ```ts
-import * as Effect from "effect/Effect"
-import * as Either from "effect/Either"
-import * as Option from "effect/Option"
-import * as Duration from "effect/Duration"
+import { Effect, Either, Option, Ref } from "effect"
 
-// Fetch user config with optional cache timeout
-const fetchConfig = (userId: string) =>
-  Effect.gen(function*() {
-    const cached = yield* getCachedConfig(userId)
+type AppConfig = { readonly theme: "light" | "dark"; readonly timeout: number }
+type FetchError = { readonly _tag: "FetchError"; readonly message: string }
 
-    if (Option.isSome(cached)) {
-      return cached.value
-    }
+const fetchRemoteConfig = (userId: string) =>
+  userId === "missing"
+    ? Effect.fail<FetchError>({ _tag: "FetchError", message: "not found" })
+    : Effect.succeed<AppConfig>({ theme: "dark", timeout: 45 })
 
-    const result = yield* Effect.tryPromise({
-      try: () => fetch(`/api/config/${userId}`).then(r => r.json()),
-      catch: (error) => ({ _tag: "FetchError" as const, error })
+const program = Effect.gen(function*() {
+  const cache = yield* Ref.make(new Map<string, AppConfig>())
+
+  const fetchConfig = (userId: string) =>
+    Effect.gen(function*() {
+      const cached = Option.fromNullable((yield* Ref.get(cache)).get(userId))
+      if (Option.isSome(cached)) {
+        return cached.value
+      }
+
+      const config = yield* fetchRemoteConfig(userId)
+      yield* Ref.update(cache, (current) => {
+        const next = new Map(current)
+        next.set(userId, config)
+        return next
+      })
+      return config
     })
 
-    yield* cacheConfig(userId, result).pipe(
-      Effect.tap(() => Effect.sleep(Duration.seconds(60)))
-    )
+  const result = yield* Effect.either(fetchConfig("user-1"))
 
-    return result
+  return Either.match(result, {
+    onLeft: () => ({ theme: "light" as const, timeout: 30 }),
+    onRight: (config) => config
   })
-
-// Handle errors with Either branching
-const getConfigOrDefault = (userId: string) =>
-  Effect.gen(function*() {
-    const result = yield* Effect.either(fetchConfig(userId))
-
-    return Either.match(result, {
-      onLeft: () => ({ theme: "light", timeout: 30 }),
-      onRight: (config) => config
-    })
-  })
+})
 ```
+
+## Docs
+
+- `https://effect.website/docs/getting-started/the-effect-type/`
+- `https://effect.website/docs/getting-started/building-pipelines/`
+- `https://effect.website/docs/getting-started/control-flow/`
+- `https://effect.website/docs/data-types/option/`
+- `https://effect.website/docs/data-types/either/`

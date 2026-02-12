@@ -21,8 +21,7 @@ Use this guide when you need to inspect or manipulate failures.
 2. Handle the `Cause` and render it for logging/metrics.
 
 ```ts
-import * as Cause from "effect/Cause"
-import * as Effect from "effect/Effect"
+import { Cause, Effect } from "effect"
 
 const program = Effect.sync(() => {
   throw new Error("boom")
@@ -36,3 +35,8 @@ const program = Effect.sync(() => {
 
 - Dropping `Cause` information during recovery.
 - Treating defects as recoverable business errors.
+
+## Docs
+
+- `https://effect.website/docs/error-management/sandboxing/`
+- `https://effect.website/docs/data-types/cause/`

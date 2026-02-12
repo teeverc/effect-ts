@@ -21,8 +21,7 @@ Use this guide when you need concurrent execution or background work.
 3. When the scope closes, the fiber is interrupted automatically.
 
 ```ts
-import * as Effect from "effect/Effect"
-import * as Schedule from "effect/Schedule"
+import { Effect, Schedule } from "effect"
 
 const worker = Effect.succeed("tick").pipe(
   Effect.repeat(Schedule.spaced("1 second"))
@@ -51,11 +50,17 @@ const program = Effect.scoped(
 ## Example
 
 ```ts
-import * as Effect from "effect/Effect"
-import * as Fiber from "effect/Fiber"
+import { Effect, Fiber } from "effect"
 
 const program = Effect.gen(function*() {
   const fiber = yield* Effect.fork(Effect.succeed(1))
   return yield* Fiber.join(fiber)
 })
 ```
+
+## Docs
+
+- `https://effect.website/docs/concurrency/basic-concurrency/`
+- `https://effect.website/docs/concurrency/fibers/`
+- `https://effect.website/docs/concurrency/queue/`
+- `https://effect.website/docs/concurrency/pubsub/`

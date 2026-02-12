@@ -13,12 +13,13 @@ Use this guide when you need validation, parsing, or encoding.
 - Use `Schema.Struct` for objects.
 - Use `Schema.NumberFromString` to parse string inputs.
 - Use `Schema.decode` for Effect-based decoding.
+- Keep schema decode/encode at boundaries; keep internal code on typed domain values.
+- Use schema-specific error formatting when surfacing validation issues to users.
 
 ## Walkthrough: decode and encode
 
 ```ts
-import * as Effect from "effect/Effect"
-import * as Schema from "effect/Schema"
+import { Effect, Schema } from "effect"
 
 const User = Schema.Struct({
   id: Schema.NumberFromString,
@@ -38,3 +39,11 @@ const program = Effect.gen(function*() {
 
 - Using sync decoders for async schemas.
 - Skipping schema-based validation at boundaries.
+
+## Docs
+
+- `https://effect.website/docs/schema/introduction/`
+- `https://effect.website/docs/schema/basic-usage/`
+- `https://effect.website/docs/schema/advanced-usage/`
+- `https://effect.website/docs/schema/error-formatters/`
+- `https://effect.website/docs/schema/transformations/`

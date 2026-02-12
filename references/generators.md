@@ -17,7 +17,7 @@ Use this guide when sequential logic would be clearer than pipelines.
 ## Walkthrough: sequential flow with branching
 
 ```ts
-import * as Effect from "effect/Effect"
+import { Effect } from "effect"
 
 const lookup = (id: string) =>
   id === "guest" ? Effect.succeed({ id }) : Effect.fail("not found")
@@ -38,3 +38,8 @@ const program = Effect.gen(function*() {
 - Nesting generators unnecessarily instead of extracting helpers.
 - Throwing exceptions in generators instead of failing effects.
 - Using `Effect.gen` when a simple pipeline is clearer.
+
+## Docs
+
+- `https://effect.website/docs/getting-started/using-generators/`
+- `https://effect.website/docs/code-style/do/`

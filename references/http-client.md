@@ -12,18 +12,19 @@ Use this guide when making outbound HTTP requests.
 
 - Build requests with `HttpClientRequest.get/post` and set headers/body.
 - Validate status with `HttpClientResponse.filterStatusOk` (or `HttpClient.filterStatusOk` on a client).
-- Decode JSON with `HttpClientResponse.schemaBodyJson`.
+- Decode JSON with `HttpClientResponse.schemaBodyJson` or `schemaJson`.
+- Retry transport/status effects before schema validation.
 - Retry with `Effect.retry` and a capped `Schedule`.
 
 ## Walkthrough: GET + status check + decode
 
 ```ts
-import * as Effect from "effect/Effect"
-import * as Schedule from "effect/Schedule"
-import * as Schema from "effect/Schema"
-import * as HttpClient from "@effect/platform/HttpClient"
-import * as HttpClientRequest from "@effect/platform/HttpClientRequest"
-import * as HttpClientResponse from "@effect/platform/HttpClientResponse"
+import { Effect, Schedule, Schema } from "effect"
+import {
+  HttpClient,
+  HttpClientRequest,
+  HttpClientResponse
+} from "@effect/platform"
 
 const User = Schema.Struct({
   id: Schema.Number,
@@ -34,13 +35,13 @@ const request = HttpClientRequest.get("https://api.example.com/users/1")
 
 const program = HttpClient.execute(request).pipe(
   Effect.flatMap(HttpClientResponse.filterStatusOk),
-  Effect.flatMap(HttpClientResponse.schemaBodyJson(User)),
   Effect.retry(
     Schedule.exponential("100 millis").pipe(
       Schedule.jittered,
       Schedule.recurs(2)
     )
-  )
+  ),
+  Effect.flatMap(HttpClientResponse.schemaBodyJson(User))
 )
 ```
 
@@ -55,3 +56,9 @@ const program = HttpClient.execute(request).pipe(
 - Treating non-2xx responses as success (use status filters).
 - Retrying non-idempotent requests without a dedupe token.
 - Missing a platform client layer in the environment.
+
+## Docs
+
+- `https://effect.website/docs/platform/introduction/`
+- `https://effect.website/docs/error-management/retrying/`
+- `https://effect.website/docs/schema/introduction/`

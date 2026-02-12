@@ -22,7 +22,7 @@ Use this guide when converting Promise or async/await code to Effect.
 4. Run the Effect at the app boundary with `Effect.runPromise`.
 
 ```ts
-import * as Effect from "effect/Effect"
+import { Effect } from "effect"
 
 const fetchUser = (id: string) =>
   Effect.tryPromise({
@@ -58,10 +58,16 @@ const program = Effect.gen(function*() {
 - Losing error information by using `Effect.promise` where `Effect.tryPromise` is needed.
 - Unbounded concurrency when replacing `Promise.all` without limits.
 
+## Docs
+
+- `https://effect.website/docs/additional-resources/effect-vs-promise/`
+- `https://effect.website/docs/getting-started/using-generators/`
+- `https://effect.website/docs/getting-started/running-effects/`
+
 ## Example
 
 ```ts
-import * as Effect from "effect/Effect"
+import { Effect } from "effect"
 
 const program = Effect.async<number, never>((resume) => {
   resume(Effect.succeed(42))

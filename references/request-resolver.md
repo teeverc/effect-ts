@@ -17,9 +17,7 @@ Use this guide when you need request batching, caching, or data loader patterns.
 ## Walkthrough: single request resolver
 
 ```ts
-import * as Effect from "effect/Effect"
-import * as Request from "effect/Request"
-import * as RequestResolver from "effect/RequestResolver"
+import { Effect, Request, RequestResolver } from "effect"
 
 class GetUser extends Request.TaggedClass("GetUser")<
   { readonly id: string; readonly name: string },
@@ -47,3 +45,7 @@ const program = Effect.request(new GetUser({ id: "user-1" }), resolver)
 - Forgetting to resolve all requests inside a batch (causes query failures).
 - Mixing unrelated requests in a single resolver.
 - Doing expensive per-request work when a batch would do.
+
+## Docs
+
+- `https://effect.website/docs/additional-resources/api-reference/`

@@ -23,8 +23,7 @@ Use this guide when modeling failures in Effect.
 3. Recover with `catchTag` at the boundary.
 
 ```ts
-import * as Data from "effect/Data"
-import * as Effect from "effect/Effect"
+import { Data, Effect } from "effect"
 
 class NotFound extends Data.TaggedError("NotFound")<{ readonly id: string }> {}
 class Unauthorized extends Data.TaggedError("Unauthorized")<{}> {}
@@ -43,3 +42,10 @@ const program = fetchUser("user-1").pipe(
 - Throwing exceptions instead of returning typed failures.
 - Collapsing all errors into `unknown` too early.
 - Mixing expected errors and defects in the same recovery path.
+
+## Docs
+
+- `https://effect.website/docs/error-management/two-error-types/`
+- `https://effect.website/docs/error-management/expected-errors/`
+- `https://effect.website/docs/error-management/unexpected-errors/`
+- `https://effect.website/docs/error-management/error-channel-operations/`

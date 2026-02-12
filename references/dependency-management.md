@@ -13,13 +13,12 @@ Use this guide when modeling dependencies and wiring services.
 - Use `Layer.succeed` for pure values and `Layer.effect`/`Layer.scoped` when construction is effectful.
 - Keep construction concerns (resource acquisition, config, wiring) inside layers so service interfaces stay clean.
 - Compose layers with `Layer.merge`/`Layer.provide` to build dependency graphs and provide the environment at program startup.
+- Keep interfaces runtime-agnostic; isolate platform details in layer implementations.
 
 ## Example
 
 ```ts
-import * as Effect from "effect/Effect"
-import * as Context from "effect/Context"
-import * as Layer from "effect/Layer"
+import { Context, Effect, Layer } from "effect"
 
 interface Config {
   readonly prefix: string
@@ -45,3 +44,9 @@ const program = Greeter.use((g) => g.greet("Ada")).pipe(
   Effect.provide(Live)
 )
 ```
+
+## Docs
+
+- `https://effect.website/docs/requirements-management/services/`
+- `https://effect.website/docs/requirements-management/layers/`
+- `https://effect.website/docs/requirements-management/default-services/`

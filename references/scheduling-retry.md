@@ -22,9 +22,7 @@ Use this guide when you need repetition, backoff, or retry policies.
 4. Apply `Effect.retry` and return a single success or a final failure.
 
 ```ts
-import * as Data from "effect/Data"
-import * as Effect from "effect/Effect"
-import * as Schedule from "effect/Schedule"
+import { Data, Effect, Schedule } from "effect"
 
 class HttpError extends Data.Error<{ readonly message: string }> {}
 
@@ -64,18 +62,20 @@ const program = fetchUser("user-1").pipe(
 - Missing jitter when many workers retry at once.
 - Retrying defects (thrown exceptions) without converting them to typed failures.
 
+## Docs
+
+- `https://effect.website/docs/error-management/retrying/`
+- `https://effect.website/docs/scheduling/introduction/`
+- `https://effect.website/docs/scheduling/schedule-combinators/`
+
 ## Example
 
 ```ts
-import * as Effect from "effect/Effect"
-import { pipe } from "effect/Function"
-import * as Ref from "effect/Ref"
-import * as Schedule from "effect/Schedule"
+import { Effect, Ref, Schedule } from "effect"
 
 const program = Effect.gen(function*() {
   const counter = yield* Ref.make(0)
-  const attempt = pipe(
-    Ref.updateAndGet(counter, (n) => n + 1),
+  const attempt = Ref.updateAndGet(counter, (n) => n + 1).pipe(
     Effect.flatMap((n) =>
       n >= 3 ? Effect.succeed(n) : Effect.fail(new Error(`attempt ${n}`))
     )

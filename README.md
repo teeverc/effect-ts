@@ -5,13 +5,14 @@ Effect-TS (Effect) guidance for TypeScript: designing and implementing Effect-ba
 ## Install
 
 ```bash
-npx skills add teeverc/effect-ts-skills --skill effect-ts
+npx skills add teeverc/effect-ts --skill effect-ts
 ```
 
 ## What’s included
 
 - `SKILL.md`
 - `references/` (focused Effect patterns and guidance)
+- `references/docs-index.md` (mapping from `llms.txt` docs topics to local guides)
 
 ## Package
 

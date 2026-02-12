@@ -5,24 +5,45 @@ Use this guide when tests need more than time control.
 ## Mental model
 
 - Test services are provided via `TestContext`.
-- Use `TestServices` helpers to swap live services.
+- Override dependencies with `Effect.provideService` or layers.
+- Keep tests deterministic by default, then opt into live dependencies explicitly.
 
 ## Patterns
 
-- Use `TestServices.provideWithLive` when mixing live and test services.
-- Use `TestServices.live` to run an effect with live services.
+- Provide `TestContext.TestContext` at test boundaries.
+- Use `Effect.provideService` to inject deterministic test doubles.
+- Prefer layer-based overrides for external dependencies (HTTP, DB, clock, random).
+- Keep assertions on typed results (`Exit`, domain errors), not only string logs.
 
-## Walkthrough: provide live services
+## Walkthrough: override a dependency in tests
 
 ```ts
-import * as Effect from "effect/Effect"
-import * as TestServices from "effect/TestServices"
+import { Context, Effect, TestContext } from "effect"
 
-const program = Effect.succeed("ok")
+interface ClockService {
+  readonly now: Effect.Effect<number>
+}
+const ClockService = Context.Tag<ClockService>("ClockService")
 
-const test = TestServices.provideWithLive(program, (live) => live)
+const program = Effect.gen(function*() {
+  const clock = yield* ClockService
+  return yield* clock.now
+})
+
+const test = program.pipe(
+  Effect.provideService(ClockService, { now: Effect.succeed(1234) }),
+  Effect.provide(TestContext.TestContext)
+)
 ```
 
 ## Pitfalls
 
 - Forgetting to use `TestContext` in test environments.
+- Leaking live services into tests unintentionally.
+- Depending on wall-clock time or non-deterministic randomness when not required.
+- Asserting only happy-path values and missing typed failure cases.
+
+## Docs
+
+- `https://effect.website/docs/testing/testclock/`
+- `https://effect.website/docs/requirements-management/default-services/`

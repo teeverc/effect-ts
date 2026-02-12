@@ -17,8 +17,7 @@ Use this guide when memoizing effects or sharing computed values.
 ## Walkthrough: memoize a function
 
 ```ts
-import * as Effect from "effect/Effect"
-import * as Random from "effect/Random"
+import { Effect, Random } from "effect"
 
 const program = Effect.gen(function*() {
   const fetchValue = (id: string) =>
@@ -44,3 +43,8 @@ const program = Effect.gen(function*() {
 - Caching non-deterministic effects without an explicit strategy.
 - Unbounded cache growth with high-cardinality keys.
 - Forgetting to handle cache invalidation or TTLs.
+
+## Docs
+
+- `https://effect.website/docs/caching/cache/`
+- `https://effect.website/docs/caching/caching-effects/`
