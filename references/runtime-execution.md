@@ -7,6 +7,8 @@ Use this guide when deciding how/where to run effects.
 - Effects are descriptions; `run*` executes them.
 - Keep `run*` calls at the edge (CLI entrypoints, server bootstrap, tests).
 - Choose a runner based on sync/async and whether you need `Exit`.
+- The `Runtime` type is removed in v4; use `Effect.run*` directly. Use `Runtime.makeRunMain` only if you need custom process setup.
+- In v4, the runtime keeps the process alive while fibers are suspended; `runMain` is still recommended for signals and exit handling.
 
 ## Patterns
 

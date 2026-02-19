@@ -13,6 +13,7 @@ Use this guide when instrumenting Effect programs.
 - Use `Effect.logInfo`/`logError` for explicit levels.
 - Use `Effect.annotateLogs` and `Effect.annotateSpans` for context.
 - Use `Effect.withSpan` to wrap traced work.
+- Some exporters live in `@effect/opentelemetry`; OTLP helpers are under `effect/unstable/observability`.
 
 ## Walkthrough: log + span
 

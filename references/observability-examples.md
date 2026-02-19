@@ -7,11 +7,11 @@ Use this guide for concrete setup details.
 ```ts
 import * as Effect from "effect/Effect"
 import * as Logger from "effect/Logger"
-import * as LogLevel from "effect/LogLevel"
+import * as References from "effect/References"
 
 const program = Effect.logInfo("hello").pipe(
-  Effect.provide(Logger.replace(Logger.defaultLogger, Logger.prettyLogger)),
-  Logger.withMinimumLogLevel(LogLevel.Info)
+  Effect.provide(Logger.layer([Logger.consolePretty()])),
+  Effect.provideService(References.MinimumLogLevel, "Info")
 )
 ```
 
@@ -24,7 +24,7 @@ import * as Metric from "effect/Metric"
 const counter = Metric.counter("requests")
 
 const program = Effect.succeed(1).pipe(
-  Metric.increment(counter)
+  Metric.update(counter, 1)
 )
 ```
 
@@ -32,10 +32,16 @@ const program = Effect.succeed(1).pipe(
 
 ```ts
 import * as Effect from "effect/Effect"
-import * as OtlpTracer from "@effect/opentelemetry/OtlpTracer"
+import * as OtlpTracer from "effect/unstable/observability/OtlpTracer"
+import * as OtlpSerialization from "effect/unstable/observability/OtlpSerialization"
+import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient"
 
 const program = OtlpTracer.make({
   url: "http://localhost:4318/v1/traces",
   resource: { serviceName: "my-service" }
-}).pipe(Effect.scoped)
+}).pipe(
+  Effect.scoped,
+  Effect.provide(FetchHttpClient.layer),
+  Effect.provide(OtlpSerialization.layerJson)
+)
 ```

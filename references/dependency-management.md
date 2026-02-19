@@ -1,15 +1,15 @@
-# Dependency Management (Services, Context, Layers)
+# Dependency Management (Services, ServiceMap, Layers)
 
-Use this guide when modeling dependencies and wiring services.
+Use this guide when modeling dependencies and wiring services in Effect v4.
 
 - **Service**: a dependency represented by a TypeScript interface.
-- **Tag**: a typed identifier that points to a service instance.
-- **Context**: a map of tags to concrete service implementations.
+- **ServiceMap**: a map of service identifiers to concrete implementations.
+- **ServiceMap.Service**: a typed identifier (and optional constructor) for a service.
 - **Layer**: the abstraction for constructing services and managing their dependencies during construction.
 
 ## Patterns
-- Define services via `Context.Tag` when you want a custom shape.
-- Use `Effect.Service` for the common pattern where you want a service class plus an auto-generated tag, accessors, and a default layer.
+- Define services via `ServiceMap.Service` (function or class syntax).
+- Prefer `yield*` to access services inside `Effect.gen`; `ServiceMap.Service.use` is fine for small inline access.
 - Use `Layer.succeed` for pure values and `Layer.effect`/`Layer.scoped` when construction is effectful.
 - Keep construction concerns (resource acquisition, config, wiring) inside layers so service interfaces stay clean.
 - Compose layers with `Layer.merge`/`Layer.provide` to build dependency graphs and provide the environment at program startup.
@@ -17,31 +17,30 @@ Use this guide when modeling dependencies and wiring services.
 ## Example
 
 ```ts
-import * as Effect from "effect/Effect"
-import * as Context from "effect/Context"
-import * as Layer from "effect/Layer"
+import { Effect, Layer, ServiceMap } from "effect"
 
 interface Config {
   readonly prefix: string
 }
 
-const Config = Context.Tag<Config>("Config")
+const Config = ServiceMap.Service<Config>("Config")
+const ConfigLayer = Layer.succeed(Config, { prefix: "PRE" })
 
-class Greeter extends Effect.Service<Greeter>()("Greeter", {
-  effect: Effect.gen(function* () {
+class Greeter extends ServiceMap.Service<Greeter>()("Greeter", {
+  make: Effect.gen(function* () {
     const config = yield* Config
     return {
       greet: (name: string) => `${config.prefix} ${name}`
     }
   })
-}) {}
+}) {
+  static layer = Layer.effect(this, this.make).pipe(
+    Layer.provide(ConfigLayer)
+  )
+}
 
-const Live = Layer.merge(
-  Layer.succeed(Config, { prefix: "PRE" }),
-  Greeter.Default
-)
-
-const program = Greeter.use((g) => g.greet("Ada")).pipe(
-  Effect.provide(Live)
-)
+const program = Effect.gen(function* () {
+  const greeter = yield* Greeter
+  return greeter.greet("Ada")
+}).pipe(Effect.provide(Greeter.layer))
 ```

@@ -7,6 +7,7 @@ Use this guide when wiring logging, metrics, or tracing into an app.
 - Provide loggers at the edge.
 - Provide tracing layers before running effects.
 - Keep exporters in layers.
+- OTLP helpers live in `effect/unstable/observability`; OpenTelemetry SDK layers live in `@effect/opentelemetry`.
 
 ## Walkthrough: tracing layer
 

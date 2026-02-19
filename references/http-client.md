@@ -1,4 +1,4 @@
-# HTTP Client (@effect/platform)
+# HTTP Client (effect/unstable/http)
 
 Use this guide when making outbound HTTP requests.
 
@@ -7,6 +7,7 @@ Use this guide when making outbound HTTP requests.
 - `HttpClient` is a service provided by a platform layer (Fetch, Node, Bun).
 - Requests are built with `HttpClientRequest` and executed with `HttpClient.execute`.
 - Non-2xx responses are not failures unless you filter status codes explicitly.
+- `HttpClient` currently lives under `effect/unstable/http` in v4.
 
 ## Patterns
 
@@ -21,9 +22,7 @@ Use this guide when making outbound HTTP requests.
 import * as Effect from "effect/Effect"
 import * as Schedule from "effect/Schedule"
 import * as Schema from "effect/Schema"
-import * as HttpClient from "@effect/platform/HttpClient"
-import * as HttpClientRequest from "@effect/platform/HttpClientRequest"
-import * as HttpClientResponse from "@effect/platform/HttpClientResponse"
+import { HttpClient, HttpClientRequest, HttpClientResponse } from "effect/unstable/http"
 
 const User = Schema.Struct({
   id: Schema.Number,
@@ -46,7 +45,7 @@ const program = HttpClient.execute(request).pipe(
 
 ## Wiring guide
 
-- Provide a platform client layer such as `FetchHttpClient.layer` (web) or a Node/Bun client layer.
+- Provide a client layer such as `FetchHttpClient.layer` from `effect/unstable/http/FetchHttpClient` (web) or `@effect/platform-node/NodeHttpClient` (Node) / `@effect/platform-bun` (Bun).
 - Apply retries only to idempotent requests.
 - Keep decoding at the boundary and return typed values to the rest of the app.
 

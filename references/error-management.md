@@ -13,7 +13,7 @@ Use this guide when modeling failures in Effect.
 - Use `Data.TaggedError` for error ADTs you plan to discriminate with `catchTag`.
 - Use `Data.Error` for simple typed error classes when tags aren't needed.
 - Use `Effect.catchTag` to handle specific error variants.
-- Use `Effect.match` or `Effect.catchAll` for centralized recovery.
+- Use `Effect.match` or `Effect.catch` for centralized recovery.
 - Use `Effect.orDie` to convert unrecoverable failures into defects.
 
 ## Walkthrough: typed domain errors and recovery

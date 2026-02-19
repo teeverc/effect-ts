@@ -17,21 +17,22 @@ Use this guide when wiring services and environments.
 ## Walkthrough: service + layer
 
 ```ts
-import * as Effect from "effect/Effect"
-import * as Layer from "effect/Layer"
+import { Effect, Layer, ServiceMap } from "effect"
 
-class Greeter extends Effect.Service<Greeter>()("Greeter", {
-  sync: () => ({ greet: (name: string) => `hi ${name}` })
-}) {}
+class Greeter extends ServiceMap.Service<Greeter>()("Greeter", {
+  make: Effect.succeed({ greet: (name: string) => `hi ${name}` })
+}) {
+  static layer = Layer.effect(this, this.make)
+}
 
-const Live = Greeter.Default
-
-const program = Greeter.use((g) => g.greet("Ada")).pipe(
-  Effect.provide(Live)
-)
+const program = Effect.gen(function* () {
+  const greeter = yield* Greeter
+  return greeter.greet("Ada")
+}).pipe(Effect.provide(Greeter.layer))
 ```
 
 ## Pitfalls
 
 - Running effects in constructors instead of layers.
-- Creating a fresh layer instance per use (breaks memoization).
+- Creating fresh layers for each provide when you want shared memoization.
+- If you need isolation, use `Layer.fresh` or `Effect.provide(layer, { local: true })`.

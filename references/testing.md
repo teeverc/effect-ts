@@ -10,14 +10,14 @@ Use this guide when tests depend on time.
 ## Patterns
 
 - Fork the effect under test, then adjust time.
-- Provide `TestContext.TestContext` to enable TestClock.
+- Provide `TestClock.layer()` from `effect/testing` to enable TestClock.
 
 ## Walkthrough: test a delay
 
 ```ts
 import * as Effect from "effect/Effect"
-import * as TestClock from "effect/TestClock"
-import * as TestContext from "effect/TestContext"
+import * as Fiber from "effect/Fiber"
+import { TestClock } from "effect/testing"
 
 const program = Effect.gen(function*() {
   yield* Effect.sleep("5 minutes")
@@ -25,13 +25,13 @@ const program = Effect.gen(function*() {
 })
 
 const test = Effect.gen(function*() {
-  const fiber = yield* Effect.fork(program)
+  const fiber = yield* Effect.forkChild(program)
   yield* TestClock.adjust("5 minutes")
-  return yield* fiber.await
-}).pipe(Effect.provide(TestContext.TestContext))
+  return yield* Fiber.join(fiber)
+}).pipe(Effect.provide(TestClock.layer()))
 ```
 
 ## Pitfalls
 
-- Forgetting to provide `TestContext.TestContext`.
+- Forgetting to provide `TestClock.layer()`.
 - Adjusting the clock without forking the effect.

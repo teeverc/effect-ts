@@ -22,9 +22,9 @@ import * as Request from "effect/Request"
 import * as RequestResolver from "effect/RequestResolver"
 
 class GetUser extends Request.TaggedClass("GetUser")<
+  { readonly id: string },
   { readonly id: string; readonly name: string },
-  "NotFound",
-  { readonly id: string }
+  "NotFound"
 > {}
 
 const resolver = RequestResolver.fromEffect((req: GetUser) =>

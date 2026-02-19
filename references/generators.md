@@ -7,12 +7,14 @@ Use this guide when sequential logic would be clearer than pipelines.
 - `Effect.gen` is async/await-style control flow for Effects.
 - `yield*` extracts values from effects in order.
 - The error channel short-circuits just like thrown errors in async/await.
+- In v4, `yield*` works with `Yieldable` values, but many values are no longer Effects (use module functions like `Ref.get`, `Deferred.await`, `Fiber.join`).
 
 ## Patterns
 
 - Prefer generators for multi-step workflows and branching.
 - Keep small effects for each step and compose with `yield*`.
-- Use `Effect.catchAll` or `Effect.catchTag` at the boundary for recovery.
+- Use `Effect.catch` or `Effect.catchTag` at the boundary for recovery.
+- If a value is `Yieldable` but not an `Effect`, call `.asEffect()` before using Effect combinators.
 
 ## Walkthrough: sequential flow with branching
 
@@ -30,7 +32,7 @@ const program = Effect.gen(function*() {
   }
 
   return "hello"
-}).pipe(Effect.catchAll(() => Effect.succeed("fallback")))
+}).pipe(Effect.catch(() => Effect.succeed("fallback")))
 ```
 
 ## Pitfalls
@@ -38,3 +40,4 @@ const program = Effect.gen(function*() {
 - Nesting generators unnecessarily instead of extracting helpers.
 - Throwing exceptions in generators instead of failing effects.
 - Using `Effect.gen` when a simple pipeline is clearer.
+- Yielding non-yieldable values such as `Ref` or `Fiber` (use `Ref.get` / `Fiber.join`).

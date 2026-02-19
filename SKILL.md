@@ -1,6 +1,6 @@
 ---
 name: effect-ts
-description: "Effect-TS (Effect) guidance for TypeScript: designing and implementing Effect-based code, modeling expected errors vs defects, managing dependencies with Context/Layer/Effect.Service, handling resource lifecycles with Scope, running effects at the program edge, using Effect.gen, validating data with Effect Schema, and testing time with TestClock. Use when asked to build, refactor, review, or explain Effect code or when converting Promise/async code to Effect."
+description: "Effect-TS (Effect) guidance for TypeScript targeting Effect v4 (beta): designing and implementing Effect-based code, modeling expected errors vs defects, managing dependencies with ServiceMap/Layer/ServiceMap.Service, handling resource lifecycles with Scope, running effects at the program edge, using Effect.gen, validating data with Schema (Codec), and testing time with TestClock. Use when asked to build, refactor, review, or explain Effect code or when converting Promise/async code to Effect."
 ---
 
 # Effect-TS
@@ -21,7 +21,7 @@ For the most up-to-date documentation, see https://effect.website/docs and https
 - If it involves resource lifecycles, open `references/resource-management.md`.
 - If it involves running effects or runtime choice, open `references/runtime-execution.md`.
 - If it involves fibers or concurrency primitives, open `references/concurrency.md`.
-- If it involves interruption, supervision, or fiber refs, open `references/concurrency-advanced.md`.
+- If it involves interruption, supervision, or references, open `references/concurrency-advanced.md`.
 - If it involves schedules or repetition, open `references/scheduling.md`.
 - If it involves retries/backoff or schedule composition, open `references/scheduling-retry.md`.
 - If it involves streams, queues, pubsub, or STM, open `references/streams-queues-stm.md`.
@@ -40,6 +40,7 @@ For the most up-to-date documentation, see https://effect.website/docs and https
 - If it needs broader testing services, open `references/testing-stack.md`.
 - If it involves migrating from Promise/async, open `references/migration-async.md`.
 - If it needs versioning or signature changes, open `references/versioning.md`.
+- If it needs v3 → v4 migration notes, open `references/migration-v4.md`.
 - If it hits common pitfalls or runtime errors, open `references/troubleshooting.md`.
 - If it needs result inspection or debugging, open `references/exit-cause.md`.
 
@@ -48,7 +49,7 @@ For the most up-to-date documentation, see https://effect.website/docs and https
 1. Clarify boundaries and IO; keep core logic as `Effect` values.
 2. Choose style: use pipelines for simple composition; use `Effect.gen` for sequential logic.
 3. Model errors explicitly: type expected errors; treat defects as unexpected failures.
-4. Model dependencies with services, tags, and layers; keep interfaces clean of construction concerns.
+4. Model dependencies with services, ServiceMap, and layers; keep interfaces clean of construction concerns.
 5. Manage resource lifecycles with `Scope` when opening/closing resources.
 6. Provide the environment via layers and run effects only at the program edge.
 
@@ -65,12 +66,12 @@ For the most up-to-date documentation, see https://effect.website/docs and https
 - `references/error-management.md` - expected vs unexpected errors and error-channel guidance.
 - `references/error-tooling.md` - sandboxing, Cause handling, and error-channel transforms.
 - `references/exit-cause.md` - Exit/Cause usage and result handling.
-- `references/dependency-management.md` - services, tags, contexts, layers, and Effect.Service patterns.
+- `references/dependency-management.md` - services, ServiceMap, layers, and ServiceMap.Service patterns.
 - `references/layer-patterns.md` - layer construction, composition, and test wiring.
 - `references/resource-management.md` - Scope and finalizers.
 - `references/runtime-execution.md` - run\* functions and edge execution.
 - `references/concurrency.md` - fibers, forking, and lifetime strategies.
-- `references/concurrency-advanced.md` - interruption, supervision, and fiber refs.
+- `references/concurrency-advanced.md` - interruption, supervision, and references.
 - `references/scheduling.md` - schedules, repetition, and timing.
 - `references/scheduling-retry.md` - retry policies, backoff, and schedule composition.
 - `references/streams-queues-stm.md` - Stream, Queue, PubSub, and STM touchpoints.
@@ -89,4 +90,5 @@ For the most up-to-date documentation, see https://effect.website/docs and https
 - `references/testing-stack.md` - test services, layers, and config in tests.
 - `references/migration-async.md` - guidance for Promise/async migration.
 - `references/versioning.md` - version and signature change notes.
+- `references/migration-v4.md` - v3 → v4 migration checklist and key renames.
 - `references/troubleshooting.md` - common errors and fixes.

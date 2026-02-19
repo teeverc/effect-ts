@@ -25,6 +25,6 @@ const program = Effect.sync(() => {
   throw new Error("boom")
 }).pipe(
   Effect.sandbox,
-  Effect.catchAllCause((cause) => Effect.succeed(Cause.pretty(cause)))
+  Effect.catchCause((cause) => Effect.succeed(Cause.pretty(cause)))
 )
 ```

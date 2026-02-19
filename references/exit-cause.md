@@ -5,7 +5,7 @@ Use this guide when you need to inspect or report effect results.
 ## Mental model
 
 - `Exit` is the result of running an effect: `Success` or `Failure`.
-- A `Failure` contains a `Cause`, which captures failures, defects, and interruptions.
+- A `Failure` contains a `Cause`, which captures failures, defects, and interruptions as a flat list of reasons in `cause.reasons`.
 - Use `Exit`/`Cause` for diagnostics or reporting where you need full result data.
 
 ## Patterns
@@ -31,5 +31,5 @@ const program = Effect.fail("boom").pipe(
 
 ## Pitfalls
 
-- Using `Exit` when `Either` is sufficient for business logic.
+- Using `Exit` when `Result` is sufficient for business logic.
 - Ignoring interruptions when reporting failures.

@@ -4,25 +4,29 @@ Use this guide when tests need more than time control.
 
 ## Mental model
 
-- Test services are provided via `TestContext`.
-- Use `TestServices` helpers to swap live services.
+- Test services are provided via layers from `effect/testing`.
+- Use `TestClock.layer()` or `TestConsole.layer` when you need deterministic time or console capture.
 
 ## Patterns
 
-- Use `TestServices.provideWithLive` when mixing live and test services.
-- Use `TestServices.live` to run an effect with live services.
+- Use `Effect.provide` with `TestClock.layer()` to control time.
+- Use `Effect.provide` with `TestConsole.layer` to capture console output.
 
-## Walkthrough: provide live services
+## Walkthrough: provide test console
 
 ```ts
 import * as Effect from "effect/Effect"
-import * as TestServices from "effect/TestServices"
+import * as Console from "effect/Console"
+import * as TestConsole from "effect/testing/TestConsole"
 
-const program = Effect.succeed("ok")
+const program = Effect.gen(function*() {
+  yield* Console.log("hello")
+  return yield* TestConsole.logLines
+}).pipe(Effect.provide(TestConsole.layer))
 
-const test = TestServices.provideWithLive(program, (live) => live)
+const test = program
 ```
 
 ## Pitfalls
 
-- Forgetting to use `TestContext` in test environments.
+- Forgetting to provide the appropriate testing layer.

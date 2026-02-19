@@ -63,7 +63,7 @@ const program = Effect.gen(function*() {
 ```ts
 import * as Effect from "effect/Effect"
 
-const program = Effect.async<number, never>((resume) => {
+const program = Effect.callback<number>((resume) => {
   resume(Effect.succeed(42))
 })
 ```
