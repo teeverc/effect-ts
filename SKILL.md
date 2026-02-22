@@ -9,6 +9,8 @@ description: "Effect-TS (Effect) guidance for TypeScript targeting Effect v4 (be
 
 Provide workflows, patterns, and best practices for building Effect-based TypeScript programs, with focused references for errors, dependencies, resources, runtime execution, generators, schema, and testing.
 
+**Status:** This documentation targets Effect v4 (beta). v4 is under active development in the [effect-smol](https://github.com/Effect-TS/effect-smol) repository. The core programming model remains stable, but unstable modules under `effect/unstable/*` may receive breaking changes in minor releases before graduating to stable APIs. For production use, consult official v4 beta guidance and stability notes.
+
 For the most up-to-date documentation, see https://effect.website/docs and https://effect.website/docs/platform. For internal lookups, the effect-docs MCP can be used to search and fetch API references (https://github.com/tim-smart/effect-mcp).
 
 ## Quick Triage

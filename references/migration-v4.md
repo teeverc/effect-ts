@@ -68,3 +68,20 @@ Use this guide as a quick checklist when updating v3 docs or code to v4.
 - `HttpApi` lives under `effect/unstable/httpapi`.
 - Other unstable modules currently include: `ai`, `cli`, `cluster`, `devtools`, `encoding`, `eventlog`, `observability`, `persistence`, `process`, `reactivity`, `rpc`, `schema`, `socket`, `sql`, `workflow`, `workers`.
 - Provide runtime layers from `@effect/platform-*` packages.
+
+## Unstable Modules Guidance
+
+v4 ships with 17 unstable modules under `effect/unstable/*`. These APIs:
+- May receive **breaking changes in minor releases** before graduating to stable APIs.
+- Should **not be depended on in production** unless actively maintained alongside the Effect ecosystem.
+- Serve as RFC-style exploration for future stable APIs.
+- Will migrate to stable APIs once the design stabilizes.
+
+**Recommendation:** Use unstable modules for:
+- Prototyping and experimental features
+- Internal tools and development utilities
+- Code that can tolerate frequent updates
+
+Avoid unstable modules for:
+- Production services requiring stability
+- Long-lived dependencies in published libraries
