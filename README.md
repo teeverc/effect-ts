@@ -10,7 +10,7 @@ Effect v3 (3.19.19) production guidance: designing and implementing Effect-based
 
 **Install:**
 ```bash
-npx skills add teeverc/effect-ts-skills --skill effect-ts
+npx skills add teeverc/effect-ts --skill effect-ts
 ```
 
 **Includes:**
@@ -24,7 +24,7 @@ Effect v4 (beta) development guidance and v3 → v4 migration support. The core 
 
 **Install:**
 ```bash
-npx skills add teeverc/effect-ts-skills --skill effect-v4
+npx skills add teeverc/effect-ts --skill effect-v4
 ```
 
 **Includes:**
