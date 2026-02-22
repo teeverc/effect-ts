@@ -1,21 +1,58 @@
-# effect-ts skill
+# effect-ts skills
 
-Effect-TS (Effect) guidance for TypeScript: designing and implementing Effect-based code, modeling expected errors vs defects, managing dependencies with Context/Layer/Effect.Service, handling resource lifecycles with Scope, running effects at the program edge, using Effect.gen, validating data with Effect Schema, and testing time with TestClock.
+Effect-TS (Effect) guidance for TypeScript with support for both **stable v3** and **beta v4**. Choose the skill that matches your project:
 
-## Install
+## Skills
 
+### `effect-ts` - Effect v3 (Stable Production)
+
+Effect v3 (3.19.19) production guidance: designing and implementing Effect-based code, modeling expected errors vs defects, managing dependencies with Context/Layer/Effect.Service, handling resource lifecycles with Scope, running effects at the program edge, using Effect.gen, validating data with Effect Schema, and testing time with TestClock.
+
+**Install:**
 ```bash
 npx skills add teeverc/effect-ts --skill effect-ts
 ```
 
-## What’s included
+**Location:** `./skills/effect-ts/`
 
-- `SKILL.md`
-- `references/` (focused Effect patterns and guidance)
-- `references/docs-index.md` (mapping from `llms.txt` docs topics to local guides)
+**Includes:**
+- `SKILL.md` - Core guidance
+- `references/` - Comprehensive v3 reference guides
 
-## Package
+### `effect-v4` - Effect v4 (Beta) + Migration
 
+Effect v4 (beta) development guidance and v3 → v4 migration support. The core programming model is stable, but `effect/unstable/*` modules may receive breaking changes in minor releases.
+
+**Install:**
 ```bash
-zip -r dist/effect-ts.skill SKILL.md references
+npx skills add teeverc/effect-ts --skill effect-v4
 ```
+
+**Location:** `./skills/effect-v4/`
+
+**Includes:**
+- `SKILL.md` - v4 core patterns + migration guidance
+- `references/core-usage.md` - v4 types and combinators
+- `references/dependency-management.md` - ServiceMap patterns
+- `references/generators.md` - Yieldable handling
+- `references/schema.md` - Codec patterns
+- `references/testing-stack.md` - v4 test wiring
+- `references/migration/` - 12 v3 → v4 migration guides
+
+## Packaging
+
+Package v3 skill:
+```bash
+cd skills/effect-ts
+zip -r ../../dist/effect-ts.skill SKILL.md references
+cd ../..
+```
+
+Package v4 skill:
+```bash
+cd skills/effect-v4
+zip -r ../../dist/effect-v4.skill SKILL.md references
+cd ../..
+```
+
+Both skills can be installed and used independently. Recommend v3 for production, v4 for beta testing and migration planning.
