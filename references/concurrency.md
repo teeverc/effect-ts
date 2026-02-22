@@ -3,8 +3,8 @@
 Use this guide when you need concurrent execution or background work.
 
 - Effects run on fibers, which are lightweight virtual threads managed by the Effect runtime.
-- `Effect.forkChild` starts an effect in a child fiber supervised by its parent.
-- `Effect.forkDetach` starts a global-scope fiber that is not supervised by a parent.
+- `Effect.fork` starts an effect in a child fiber supervised by its parent.
+- `Effect.forkDaemon` starts a global-scope fiber that is not supervised by a parent.
 - `Effect.forkScoped` starts a child fiber tied to a local scope, independent of the parent.
 - `Effect.forkIn` starts a child fiber in a specific scope for precise lifetime control.
 
@@ -13,7 +13,6 @@ Use this guide when you need concurrent execution or background work.
 - Concurrency is structured: forked work should be joined, interrupted, or scoped.
 - Prefer high-level combinators (`Effect.all`, `Effect.forEach`) over manual fibers.
 - Use scopes to prevent background tasks from leaking.
-- Forking APIs accept options such as `startImmediately` and `uninterruptible`.
 
 ## Walkthrough: scoped background worker
 
@@ -22,8 +21,7 @@ Use this guide when you need concurrent execution or background work.
 3. When the scope closes, the fiber is interrupted automatically.
 
 ```ts
-import * as Effect from "effect/Effect"
-import * as Schedule from "effect/Schedule"
+import { Effect, Schedule } from "effect"
 
 const worker = Effect.succeed("tick").pipe(
   Effect.repeat(Schedule.spaced("1 second"))
@@ -52,11 +50,17 @@ const program = Effect.scoped(
 ## Example
 
 ```ts
-import * as Effect from "effect/Effect"
-import * as Fiber from "effect/Fiber"
+import { Effect, Fiber } from "effect"
 
 const program = Effect.gen(function*() {
-  const fiber = yield* Effect.forkChild(Effect.succeed(1))
+  const fiber = yield* Effect.fork(Effect.succeed(1))
   return yield* Fiber.join(fiber)
 })
 ```
+
+## Docs
+
+- `https://effect.website/docs/concurrency/basic-concurrency/`
+- `https://effect.website/docs/concurrency/fibers/`
+- `https://effect.website/docs/concurrency/queue/`
+- `https://effect.website/docs/concurrency/pubsub/`

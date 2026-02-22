@@ -5,43 +5,40 @@ Use this guide for concrete setup details.
 ## Logging example
 
 ```ts
-import * as Effect from "effect/Effect"
-import * as Logger from "effect/Logger"
-import * as References from "effect/References"
+import { Effect, Logger, LogLevel } from "effect"
 
-const program = Effect.logInfo("hello").pipe(
-  Effect.provide(Logger.layer([Logger.consolePretty()])),
-  Effect.provideService(References.MinimumLogLevel, "Info")
+const program = Effect.logDebug("hello").pipe(
+  Logger.withMinimumLogLevel(LogLevel.Debug)
 )
 ```
 
 ## Metrics example
 
 ```ts
-import * as Effect from "effect/Effect"
-import * as Metric from "effect/Metric"
+import { Effect, Metric } from "effect"
 
 const counter = Metric.counter("requests")
 
-const program = Effect.succeed(1).pipe(
-  Metric.update(counter, 1)
-)
+const program = Effect.gen(function*() {
+  yield* Metric.increment(counter)
+  return yield* Metric.value(counter)
+})
 ```
 
 ## Tracing example (OpenTelemetry)
 
 ```ts
-import * as Effect from "effect/Effect"
-import * as OtlpTracer from "effect/unstable/observability/OtlpTracer"
-import * as OtlpSerialization from "effect/unstable/observability/OtlpSerialization"
-import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient"
+import { Effect } from "effect"
+import * as OtlpTracer from "@effect/opentelemetry/OtlpTracer"
 
 const program = OtlpTracer.make({
   url: "http://localhost:4318/v1/traces",
   resource: { serviceName: "my-service" }
-}).pipe(
-  Effect.scoped,
-  Effect.provide(FetchHttpClient.layer),
-  Effect.provide(OtlpSerialization.layerJson)
-)
+}).pipe(Effect.scoped)
 ```
+
+## Docs
+
+- `https://effect.website/docs/observability/logging/`
+- `https://effect.website/docs/observability/metrics/`
+- `https://effect.website/docs/observability/tracing/`

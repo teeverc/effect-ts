@@ -13,12 +13,12 @@ Use this guide when modeling repetition or time-based policies.
 - Use `Schedule.recurs(n)` to cap repetitions.
 - Use `Schedule.spaced("1 second")` for fixed spacing.
 - Combine schedules with `Schedule.jittered` and `Schedule.exponential` for backoff.
+- Use cron scheduling when recurrence is calendar-based (hour/day/week semantics).
 
 ## Walkthrough: repeat with spacing and cap
 
 ```ts
-import * as Effect from "effect/Effect"
-import * as Schedule from "effect/Schedule"
+import { Effect, Schedule } from "effect"
 
 const schedule = Schedule.spaced("1 second").pipe(
   Schedule.recurs(3)
@@ -34,3 +34,11 @@ const program = Effect.succeed("tick").pipe(
 - Using `Effect.schedule` when you expect the initial run.
 - Missing caps on retries/repeats.
 - Forgetting jitter in high-concurrency retries.
+- Encoding calendar logic manually when a cron schedule is clearer.
+
+## Docs
+
+- `https://effect.website/docs/scheduling/introduction/`
+- `https://effect.website/docs/scheduling/built-in-schedules/`
+- `https://effect.website/docs/scheduling/schedule-combinators/`
+- `https://effect.website/docs/scheduling/cron/`

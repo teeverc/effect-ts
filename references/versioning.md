@@ -6,7 +6,6 @@ Use this guide when adapting examples across Effect versions.
 - Prefer the latest Effect major release in examples.
 - Validate examples against current docs and API reference.
 - Treat release notes as the source of truth for breaking changes.
-- In v4, all Effect ecosystem packages share the same version number.
 
 ## Mental model
 
@@ -25,11 +24,16 @@ Use this guide when adapting examples across Effect versions.
 
 - Pin `effect` to a known major/minor and keep references consistent with that version.
 - Add a migration step in upgrades: update dependencies → compile → update docs.
-- When sharing examples, include the minimum version (“Effect >= 4.0”) in the doc header or in the example comment.
-- If an API lives under `effect/unstable/*`, call out that it can change in minor releases.
+- When sharing examples, include the minimum version (“Effect >= 3.0”) in the doc header or in the example comment.
 
 ## Pitfalls
 
 - Copying snippets from older blogs without validating against current APIs.
 - Updating Effect without updating related docs and examples.
 - Ignoring changes in adjacent types (e.g., Layer/Stream) after a version bump.
+
+## Docs
+
+- `https://effect.website/docs/additional-resources/api-reference/`
+- `https://tim-smart.github.io/effect-io-ai/`
+

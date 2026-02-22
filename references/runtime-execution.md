@@ -7,8 +7,6 @@ Use this guide when deciding how/where to run effects.
 - Effects are descriptions; `run*` executes them.
 - Keep `run*` calls at the edge (CLI entrypoints, server bootstrap, tests).
 - Choose a runner based on sync/async and whether you need `Exit`.
-- The `Runtime` type is removed in v4; use `Effect.run*` directly. Use `Runtime.makeRunMain` only if you need custom process setup.
-- In v4, the runtime keeps the process alive while fibers are suspended; `runMain` is still recommended for signals and exit handling.
 
 ## Patterns
 
@@ -16,12 +14,12 @@ Use this guide when deciding how/where to run effects.
 - Use `Effect.runSync` only for fully synchronous effects.
 - Use `Effect.runFork` for background fibers.
 - Use `Effect.runPromiseExit` / `Effect.runSyncExit` when you need `Exit`.
+- Keep one explicit runtime boundary per app entrypoint when possible.
 
 ## Walkthrough: run and inspect Exit
 
 ```ts
-import * as Effect from "effect/Effect"
-import * as Exit from "effect/Exit"
+import { Effect, Exit } from "effect"
 
 const program = Effect.fail("boom")
 
@@ -38,3 +36,14 @@ Effect.runPromiseExit(program).then((exit) =>
 - Calling `run*` in library code (breaks composability).
 - Using `runSync` on async effects.
 - Dropping `Exit` when you need failure details.
+
+## Agent checklist
+
+- Confirm where `run*` is called and why that boundary is correct.
+- Verify `R` is fully provided before runtime execution.
+- Choose `runPromiseExit` when failure diagnostics are needed by callers.
+- For background fibers, ensure there is an interruption/shutdown strategy.
+
+## Docs
+
+- `https://effect.website/docs/getting-started/running-effects/`

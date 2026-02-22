@@ -1,4 +1,4 @@
-# HTTP Server (effect/unstable/httpapi)
+# HTTP Server (@effect/platform)
 
 Use this guide when defining and serving HTTP APIs.
 
@@ -7,13 +7,12 @@ Use this guide when defining and serving HTTP APIs.
 - `HttpApi` defines endpoints, groups, and schemas once.
 - `HttpApiBuilder` wires endpoint handlers and produces server layers.
 - A platform server layer (Node/Bun) provides the runtime HTTP server.
-- `HttpApi` currently lives under `effect/unstable/httpapi` in v4.
 
 ## Patterns
 
 - Define endpoints with `HttpApiEndpoint` and group them with `HttpApiGroup`.
-- Implement groups with `HttpApiBuilder.group` and assemble with `HttpApiBuilder.layer`.
-- Serve with `HttpRouter.serve` and a platform server layer.
+- Implement groups with `HttpApiBuilder.group` and assemble with `HttpApiBuilder.api`.
+- Serve with `HttpApiBuilder.serve()` and a platform server layer.
 - Add Swagger docs via `HttpApiSwagger.layer()`.
 
 ## Walkthrough: Hello World server
@@ -24,29 +23,29 @@ import {
   HttpApiBuilder,
   HttpApiEndpoint,
   HttpApiGroup
-} from "effect/unstable/httpapi"
-import { HttpRouter } from "effect/unstable/http"
+} from "@effect/platform"
 import { NodeHttpServer, NodeRuntime } from "@effect/platform-node"
 import { Effect, Layer, Schema } from "effect"
 import { createServer } from "node:http"
 
 const MyApi = HttpApi.make("MyApi").add(
   HttpApiGroup.make("Greetings").add(
-    HttpApiEndpoint.get("helloWorld", "/", { success: Schema.String })
+    HttpApiEndpoint.get("hello-world")`/`.addSuccess(Schema.String)
   )
 )
 
 const GreetingsLive = HttpApiBuilder.group(MyApi, "Greetings", (handlers) =>
-  handlers.handle("helloWorld", () => Effect.succeed("Hello, World!"))
+  handlers.handle("hello-world", () => Effect.succeed("Hello, World!"))
 )
 
-const ApiLive = HttpApiBuilder.layer(MyApi).pipe(
-  Layer.provide(GreetingsLive),
-  HttpRouter.serve,
+const MyApiLive = HttpApiBuilder.api(MyApi).pipe(Layer.provide(GreetingsLive))
+
+const ServerLive = HttpApiBuilder.serve().pipe(
+  Layer.provide(MyApiLive),
   Layer.provide(NodeHttpServer.layer(createServer, { port: 3000 }))
 )
 
-Layer.launch(ApiLive).pipe(NodeRuntime.runMain)
+Layer.launch(ServerLive).pipe(NodeRuntime.runMain)
 ```
 
 ## Wiring guide
@@ -58,5 +57,10 @@ Layer.launch(ApiLive).pipe(NodeRuntime.runMain)
 ## Pitfalls
 
 - Missing the platform server layer in the environment.
-- Implementing endpoints without wiring the group into `HttpApiBuilder.layer`.
+- Implementing endpoints without wiring the group into `HttpApiBuilder.api`.
 - Running effects inside handlers that should be provided via layers.
+
+## Docs
+
+- `https://effect.website/docs/platform/introduction/`
+- `https://effect.website/docs/platform/runtime/`

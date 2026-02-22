@@ -5,13 +5,13 @@ Use this guide when you need to inspect or manipulate failures.
 ## Mental model
 
 - The error channel contains expected errors only.
-- `Cause` captures expected failures, defects, and interruptions as a flat list of reasons in `cause.reasons`.
+- `Cause` captures expected failures, defects, and interruptions.
 - Sandboxing exposes defects as `Cause` so you can inspect everything.
 
 ## Patterns
 
 - Use `Effect.sandbox` to move defects into the error channel as `Cause`.
-- Use `Effect.catchCause` to handle failures and defects together.
+- Use `Effect.catchAllCause` to handle failures and defects together.
 - Use `Cause.pretty` for diagnostics.
 - Use `Effect.unsandbox` to restore defects after inspection.
 
@@ -21,14 +21,13 @@ Use this guide when you need to inspect or manipulate failures.
 2. Handle the `Cause` and render it for logging/metrics.
 
 ```ts
-import * as Cause from "effect/Cause"
-import * as Effect from "effect/Effect"
+import { Cause, Effect } from "effect"
 
 const program = Effect.sync(() => {
   throw new Error("boom")
 }).pipe(
   Effect.sandbox,
-  Effect.catchCause((cause) => Effect.succeed(Cause.pretty(cause)))
+  Effect.catchAllCause((cause) => Effect.succeed(Cause.pretty(cause)))
 )
 ```
 
@@ -36,3 +35,8 @@ const program = Effect.sync(() => {
 
 - Dropping `Cause` information during recovery.
 - Treating defects as recoverable business errors.
+
+## Docs
+
+- `https://effect.website/docs/error-management/sandboxing/`
+- `https://effect.website/docs/data-types/cause/`

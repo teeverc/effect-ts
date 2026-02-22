@@ -13,12 +13,11 @@ Use this guide when instrumenting Effect programs.
 - Use `Effect.logInfo`/`logError` for explicit levels.
 - Use `Effect.annotateLogs` and `Effect.annotateSpans` for context.
 - Use `Effect.withSpan` to wrap traced work.
-- Some exporters live in `@effect/opentelemetry`; OTLP helpers are under `effect/unstable/observability`.
 
 ## Walkthrough: log + span
 
 ```ts
-import * as Effect from "effect/Effect"
+import { Effect } from "effect"
 
 const program = Effect.logInfo("start").pipe(
   Effect.annotateLogs({ requestId: "req-1" }),
@@ -30,3 +29,10 @@ const program = Effect.logInfo("start").pipe(
 
 - Logging secrets without redaction.
 - Creating spans without providing a tracer layer.
+
+## Docs
+
+- `https://effect.website/docs/observability/logging/`
+- `https://effect.website/docs/observability/metrics/`
+- `https://effect.website/docs/observability/tracing/`
+- `https://effect.website/docs/observability/supervisor/`

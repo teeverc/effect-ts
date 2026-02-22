@@ -4,102 +4,46 @@ Use this guide when tests need more than time control.
 
 ## Mental model
 
-- Test services are provided via layers from `effect/testing`.
-- Use `TestClock.layer()` or `TestConsole.layer` when you need deterministic time or console capture.
+- Test services are provided via `TestContext`.
+- Override dependencies with `Effect.provideService` or layers.
+- Keep tests deterministic by default, then opt into live dependencies explicitly.
 
 ## Patterns
 
-- Use `Effect.provide` with `TestClock.layer()` to control time.
-- Use `Effect.provide` with `TestConsole.layer` to capture console output.
+- Provide `TestContext.TestContext` at test boundaries.
+- Use `Effect.provideService` to inject deterministic test doubles.
+- Prefer layer-based overrides for external dependencies (HTTP, DB, clock, random).
+- Keep assertions on typed results (`Exit`, domain errors), not only string logs.
 
-## Walkthrough: provide test console
-
-```ts
-import * as Effect from "effect/Effect"
-import * as Console from "effect/Console"
-import * as TestConsole from "effect/testing/TestConsole"
-
-const program = Effect.gen(function*() {
-  yield* Console.log("hello")
-  return yield* TestConsole.logLines
-}).pipe(Effect.provide(TestConsole.layer))
-
-const test = program
-```
-
-## Practical Example: Test wiring with services (v4)
+## Walkthrough: override a dependency in tests
 
 ```ts
-import * as Effect from "effect/Effect"
-import * as Layer from "effect/Layer"
-import * as ServiceMap from "effect/ServiceMap"
-import * as TestClock from "effect/testing/TestClock"
+import { Context, Effect, TestContext } from "effect"
 
-interface Database {
-  query: (sql: string) => Effect.Effect<unknown>
+interface ClockService {
+  readonly now: Effect.Effect<number>
 }
+const ClockService = Context.Tag<ClockService>("ClockService")
 
-const Database = ServiceMap.Service<Database>("Database")
-
-// Mock implementation for testing
-const TestDatabase = Layer.succeed(Database, {
-  query: () => Effect.succeed({ rows: [] })
+const program = Effect.gen(function*() {
+  const clock = yield* ClockService
+  return yield* clock.now
 })
 
-// Compose test layers
-const testLayers = Layer.merge(
-  TestClock.layer(),
-  TestDatabase
+const test = program.pipe(
+  Effect.provideService(ClockService, { now: Effect.succeed(1234) }),
+  Effect.provide(TestContext.TestContext)
 )
-
-const program = Effect.gen(function*() {
-  const db = yield* Database
-  yield* db.query("SELECT *")
-  return "ok"
-}).pipe(Effect.provide(testLayers))
-
-// Run test
-const test = Effect.runPromise(program)
-```
-
-## Practical Example: Isolated test runs with fresh layers
-
-```ts
-import * as Effect from "effect/Effect"
-import * as Layer from "effect/Layer"
-
-const setupTest = (layer: Layer.Layer<unknown>) =>
-  Effect.gen(function*() {
-    // Use local: true to isolate layer instances across test runs
-    yield* Effect.provide(layer, { local: true })
-    return "test complete"
-  })
-```
-
-## Practical Example: TestConsole and output capture
-
-```ts
-import * as Effect from "effect/Effect"
-import * as Console from "effect/Console"
-import * as TestConsole from "effect/testing/TestConsole"
-
-const program = Effect.gen(function*() {
-  yield* Console.log("Test message 1")
-  yield* Console.log("Test message 2")
-  const logs = yield* TestConsole.logLines
-  return logs
-}).pipe(Effect.provide(TestConsole.layer))
-
-// Run and verify output
-const test = Effect.runPromise(program).then(logs => {
-  console.assert(logs.length === 2)
-  console.assert(logs[0] === "Test message 1")
-})
 ```
 
 ## Pitfalls
 
-- Forgetting to provide the appropriate testing layer.
-- Not using `{ local: true }` when you need isolated service instances per test.
-- Mixing real and test implementations without explicit layer composition.
-- Forgetting that in v4, services are accessed via `yield*` inside generators, not via static proxy methods.
+- Forgetting to use `TestContext` in test environments.
+- Leaking live services into tests unintentionally.
+- Depending on wall-clock time or non-deterministic randomness when not required.
+- Asserting only happy-path values and missing typed failure cases.
+
+## Docs
+
+- `https://effect.website/docs/testing/testclock/`
+- `https://effect.website/docs/requirements-management/default-services/`
