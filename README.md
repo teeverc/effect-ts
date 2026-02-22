@@ -13,10 +13,11 @@ Effect v3 (3.19.19) production guidance: designing and implementing Effect-based
 npx skills add teeverc/effect-ts --skill effect-ts
 ```
 
+**Location:** `./skills/effect-ts/`
+
 **Includes:**
-- `./SKILL.md` - Core guidance
-- `./references/` - Comprehensive v3 reference guides
-- All v3 patterns and APIs for production use
+- `SKILL.md` - Core guidance
+- `references/` - Comprehensive v3 reference guides
 
 ### `effect-v4` - Effect v4 (Beta) + Migration
 
@@ -27,20 +28,24 @@ Effect v4 (beta) development guidance and v3 → v4 migration support. The core 
 npx skills add teeverc/effect-ts --skill effect-v4
 ```
 
+**Location:** `./skills/effect-v4/`
+
 **Includes:**
-- `./skills/effect-v4/SKILL.md` - v4 core patterns + migration guidance
-- `./skills/effect-v4/references/core-usage.md` - v4 types and combinators
-- `./skills/effect-v4/references/dependency-management.md` - ServiceMap patterns
-- `./skills/effect-v4/references/generators.md` - Yieldable handling
-- `./skills/effect-v4/references/schema.md` - Codec patterns
-- `./skills/effect-v4/references/testing-stack.md` - v4 test wiring
-- `./skills/effect-v4/references/migration/` - 12 v3 → v4 migration guides
+- `SKILL.md` - v4 core patterns + migration guidance
+- `references/core-usage.md` - v4 types and combinators
+- `references/dependency-management.md` - ServiceMap patterns
+- `references/generators.md` - Yieldable handling
+- `references/schema.md` - Codec patterns
+- `references/testing-stack.md` - v4 test wiring
+- `references/migration/` - 12 v3 → v4 migration guides
 
 ## Packaging
 
 Package v3 skill:
 ```bash
-zip -r dist/effect-ts.skill SKILL.md references
+cd skills/effect-ts
+zip -r ../../dist/effect-ts.skill SKILL.md references
+cd ../..
 ```
 
 Package v4 skill:
