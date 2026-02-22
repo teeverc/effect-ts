@@ -58,6 +58,7 @@ All bundled migration guides are sourced from the official effect-smol migration
 
 ### Migrating from v3
 
+- Full migration overview, quick-reference table, ordered checklist: `references/migration.md`
 - Runtime and run functions: `references/migration/runtime.md`
 - Error handling and error channel changes: `references/migration/error-handling.md`
 - Cause flattening and new structure: `references/migration/cause.md`
@@ -130,6 +131,7 @@ Comprehensive v4-specific guides (all updated for v4 APIs, no deprecated pattern
 
 ## References - v3 → v4 Migration
 
+- `references/migration.md` - **Start here**: full overview, quick-reference table, ordered checklist
 - `references/migration/cause.md` - Cause flattening and structure
 - `references/migration/equality.md` - Equality and comparison changes
 - `references/migration/error-handling.md` - Error channel and catch* renames
