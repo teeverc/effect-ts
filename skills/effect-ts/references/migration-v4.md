@@ -5,7 +5,7 @@ Use this guide as a quick checklist when updating v3 docs or code to v4.
 ## High-level changes
 
 - All Effect ecosystem packages share a single version number and release together.
-- Many packages are consolidated into `effect`; platform/provider packages remain separate (`@effect/platform-*`, `@effect/sql-*`, `@effect/ai-*`, `@effect/opentelemetry`, `@effect/vitest`).
+- Many packages are consolidated into `effect`; platform/provider packages remain separate (`@effect/platform-*`, `@effect/sql-*`, `@effect/ai-*`, `@effect/atom-*`, `@effect/opentelemetry`, `@effect/vitest`).
 - v4 introduces `effect/unstable/*` modules. APIs under `unstable/` can change in minor releases.
 
 ## Core renames and behavior changes
@@ -66,12 +66,12 @@ Use this guide as a quick checklist when updating v3 docs or code to v4.
 
 - HTTP client/server modules are under `effect/unstable/http`.
 - `HttpApi` lives under `effect/unstable/httpapi`.
-- Other unstable modules currently include: `ai`, `cli`, `cluster`, `devtools`, `encoding`, `eventlog`, `observability`, `persistence`, `process`, `reactivity`, `rpc`, `schema`, `socket`, `sql`, `workflow`, `workers`.
+- Other unstable modules currently include: `ai`, `cli`, `cluster`, `devtools`, `eventlog`, `jsonschema`, `observability`, `persistence`, `process`, `reactivity`, `rpc`, `schema`, `socket`, `sql`, `workflow`, `workers`.
 - Provide runtime layers from `@effect/platform-*` packages.
 
 ## Unstable Modules Guidance
 
-v4 ships with 17 unstable modules under `effect/unstable/*`. These APIs:
+v4 ships with 18 unstable modules under `effect/unstable/*`. These APIs:
 - May receive **breaking changes in minor releases** before graduating to stable APIs.
 - Should **not be depended on in production** unless actively maintained alongside the Effect ecosystem.
 - Serve as RFC-style exploration for future stable APIs.

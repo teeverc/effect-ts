@@ -5,7 +5,7 @@ Use this guide as the entry point when upgrading a v3 codebase to v4. It covers 
 ## Package Changes
 
 - All Effect ecosystem packages share a single version number and release together.
-- Many packages are consolidated into `effect`; platform, SQL, AI, and observability packages remain separate (`@effect/platform-*`, `@effect/sql-*`, `@effect/ai-*`, `@effect/opentelemetry`, `@effect/vitest`).
+- Many packages are consolidated into `effect`; platform, SQL, AI, atom, and observability packages remain separate (`@effect/platform-*`, `@effect/sql-*`, `@effect/ai-*`, `@effect/atom-*`, `@effect/opentelemetry`, `@effect/vitest`).
 - HTTP, HttpApi, AI, and other APIs are under `effect/unstable/*`. APIs under `unstable/` may receive breaking changes in minor releases.
 
 ## Quick-Reference: Common v3 → v4 Renames

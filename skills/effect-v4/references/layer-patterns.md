@@ -74,15 +74,16 @@ import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
 import * as ServiceMap from "effect/ServiceMap"
 
-class Greeter extends Effect.Service<Greeter>()("Greeter", {
-  sync: () => ({ greet: (name: string) => `hi ${name}` })
-}) {}
+class Greeter extends ServiceMap.Service<Greeter>()("Greeter", {
+  make: Effect.succeed({ greet: (name: string) => `hi ${name}` })
+}) {
+  static layer = Layer.effect(this, this.make)
+}
 
-const Live = Greeter.Default
-
-const program = Greeter.use((g) => g.greet("Ada")).pipe(
-  Effect.provide(Live)
-)
+const program = Effect.gen(function* () {
+  const greeter = yield* Greeter
+  return greeter.greet("Ada")
+}).pipe(Effect.provide(Greeter.layer))
 ```
 
 ## Pitfalls
