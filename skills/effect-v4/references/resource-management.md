@@ -12,6 +12,7 @@ Use this guide when acquiring and releasing resources.
 - `Scope` tracks acquired resources and runs finalizers in LIFO order.
 - `Effect.acquireRelease` defines acquire + release; `Effect.scoped` runs it safely.
 - Release runs on success, failure, or interruption; use the `exit` value to customize cleanup.
+- Release finalizers may depend on the surrounding environment in current v4 betas; keep cleanup logic inside Effect rather than escaping to ad-hoc globals.
 - Use `forkScoped` for background work that uses scoped resources.
 
 ## v4 Change: `Scope.extend` → `Scope.provide`

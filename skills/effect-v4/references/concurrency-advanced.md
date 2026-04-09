@@ -6,11 +6,11 @@ Use this guide when coordinating fibers beyond simple forking.
 
 - Interruption is cooperative; attach cleanup with `Effect.onInterrupt`.
 - Supervisors and scopes keep child fibers bound to a lifetime.
-- In v4, fiber-local state uses `ServiceMap.Reference` — `FiberRef` has been removed.
+- In v4, fiber-local state uses `Context.Reference` — `FiberRef` has been removed.
 
-## v4 Changes: FiberRef → ServiceMap.Reference
+## v4 Changes: FiberRef → Context.Reference
 
-`FiberRef`, `FiberRefs`, `FiberRefsPatch`, and `Differ` have been removed. Fiber-local state is now handled by `ServiceMap.Reference`, which is also the mechanism for services with default values.
+`FiberRef`, `FiberRefs`, `FiberRefsPatch`, and `Differ` have been removed. Fiber-local state is now handled by `Context.Reference`, which is also the mechanism for services with default values.
 
 ### Built-in Reference Mapping
 
@@ -54,13 +54,13 @@ const program = Effect.provideService(
 
 ## Custom References
 
-Use `ServiceMap.Reference` to define your own fiber-local state with a default:
+Use `Context.Reference` to define your own fiber-local state with a default:
 
 ```ts
-import * as ServiceMap from "effect/ServiceMap"
+import * as Context from "effect/Context"
 import * as Effect from "effect/Effect"
 
-const MyRef = ServiceMap.Reference<number>("MyRef", { defaultValue: () => 0 })
+const MyRef = Context.Reference<number>("MyRef", { defaultValue: () => 0 })
 
 const program = Effect.gen(function*() {
   const value = yield* MyRef
@@ -75,13 +75,13 @@ const withOverride = Effect.provideService(program, MyRef, 42)
 
 - Use `Effect.forkScoped` to tie a fiber to a scope.
 - Use `Fiber.interrupt` and `Fiber.join` to manage lifetimes.
-- Use `ServiceMap.Reference` for fiber-local state (replaces `FiberRef`).
+- Use `Context.Reference` for fiber-local state (replaces `FiberRef`).
 - Use `Deferred`/`Queue`/`Semaphore` for explicit coordination.
 - Use `Effect.provideService` with a reference to scope its value (replaces `Effect.locally`).
 
 ## Pitfalls
 
-- Using removed `FiberRef` module — use `ServiceMap.Reference` instead.
+- Using removed `FiberRef` module — use `Context.Reference` instead.
 - Using removed `Effect.locally` — use `Effect.provideService` instead.
 - Detaching fibers without a scope.
 - Assuming interruption is preemptive.

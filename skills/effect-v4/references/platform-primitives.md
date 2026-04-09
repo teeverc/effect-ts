@@ -13,8 +13,10 @@ Use this guide when writing Effect code that interacts with OS/process/file/term
 
 - Prefer dependency-injected wrappers around `Command`/`FileSystem`/`Terminal`.
 - Use `KeyValueStore` for simple persistence and caching boundaries.
+- Use `KeyValueStore.layerSql` when you want SQL-backed key-value storage via `SqlClient`.
 - Keep serialization/deserialization and schema validation near storage boundaries.
 - Use scoped resources for handles/streams tied to lifecycle.
+- Use `ChildProcessHandle.unref` when a child process should stop keeping the runtime alive.
 - Convert platform exceptions to typed domain errors at adapter boundaries.
 
 ## Adapter sketch

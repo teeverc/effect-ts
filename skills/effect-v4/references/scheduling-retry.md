@@ -13,6 +13,7 @@ Use this guide when you need repetition, backoff, or retry policies.
 - `Schedule` is a policy that decides *when* to try again and *how many* times.
 - `repeat` is for success recurrence; `retry` is for failure recovery.
 - Add jitter and caps to avoid synchronized retry storms.
+- Prefer typed failures for retry decisions; `Effect.retry` with `times` now preserves the original error instead of wrapping it in a retry artifact.
 
 ## Walkthrough: retry an API call with backoff
 

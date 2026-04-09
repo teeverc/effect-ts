@@ -13,8 +13,11 @@ Use this guide when making outbound HTTP requests.
 - Build requests with `HttpClientRequest.get/post` and set headers/body.
 - Validate status with `HttpClientResponse.filterStatusOk` (or `HttpClient.filterStatusOk` on a client).
 - Decode JSON with `HttpClientResponse.schemaBodyJson` or `schemaJson`.
+- Use `HttpClientRequest.toWeb` / `fromWeb` when bridging to the platform `Request` API.
 - Retry transport/status effects before schema validation.
 - Retry with `Effect.retry` and a capped `Schedule`.
+
+For generated or `HttpApiClient`-style clients, watch for recent option renames such as `withResponse` → `responseMode`, and prefer schema-aware URL/request construction over manual encoding.
 
 ## Walkthrough: GET + status check + decode
 

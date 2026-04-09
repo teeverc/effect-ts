@@ -12,10 +12,9 @@ Use this guide as the entry point when upgrading a v3 codebase to v4. It covers 
 
 | v3 | v4 |
 |---|---|
-| `Context` | `ServiceMap` |
-| `Context.Tag("Id")()` | `ServiceMap.Service()("Id")` |
-| `Effect.Service` | `ServiceMap.Service` |
-| `Context.Reference` / `FiberRef` | `ServiceMap.Reference` / `References.*` |
+| `Context.Tag("Id")()` | `Context.Service()("Id")` |
+| `Effect.Service` | `Context.Service` |
+| `Context.Reference` / `FiberRef` | `Context.Reference` / `References.*` |
 | `Effect.either` | `Effect.result` |
 | `Either` | `Result` |
 | `Effect.catchAll` | `Effect.catch` |
@@ -27,13 +26,15 @@ Use this guide as the entry point when upgrading a v3 codebase to v4. It covers 
 | `Effect.forkDaemon` | `Effect.forkDetach` |
 | `Effect.forkAll` | Removed (use `Effect.forEach` or individual `forkChild`) |
 | `Effect.locally` | `Effect.provideService` |
-| `Runtime<R>` | Removed — use `ServiceMap<R>` |
+| `Runtime<R>` | Removed — use `Context<R>` |
 | `Scope.extend` | `Scope.provide` |
 | `Equal.equivalence<T>()` | `Equal.asEquivalence<T>()` |
 | `Schema.decode` | `Schema.decodeEffect` |
 | `Schema.encode` | `Schema.encodeEffect` |
 | `Schema.encodedSchema` | `Schema.toEncoded` |
 | `Schema.typeSchema` | `Schema.toType` |
+| `Schema.makeUnsafe` | `Schema.make` |
+| constructor-style throwing parse with custom wrapper | `Schema.makeEffect` |
 | `Schema.Union(a, b)` | `Schema.Union([a, b])` |
 | `Schema.Tuple(a, b)` | `Schema.Tuple([a, b])` |
 | `Cause.isFailure` | `Cause.hasFails` |
@@ -45,13 +46,16 @@ Use this guide as the entry point when upgrading a v3 codebase to v4. It covers 
 | `Cause.NoSuchElementException` | `Cause.NoSuchElementError` |
 | `Cause.TimeoutException` | `Cause.TimeoutError` |
 
+Older v4 beta docs and older versions of this skill may mention `ServiceMap`. That rename has been reverted upstream: current v4 code uses `Context`, `Context.Service`, and `Context.Reference`.
+
 ## Migration Checklist
 
 Work through these in order — later changes often depend on earlier ones.
 
 ### 1. Services and Context → `references/migration/services.md`
-- Replace `Context.Tag` with `ServiceMap.Service`
-- Replace `Context.Reference` with `ServiceMap.Reference`
+- Replace `Context.Tag` with `Context.Service`
+- Replace `Effect.Service` with `Context.Service`
+- Replace `FiberRef` with `Context.Reference` or `References.*`
 - Update `FiberRef` usages to `References.*` (see `references/migration/fiberref.md`)
 
 ### 2. Error Handling → `references/migration/error-handling.md`
@@ -65,7 +69,7 @@ Work through these in order — later changes often depend on earlier ones.
 - Replace `forkAll` with `Effect.forEach` or individual `forkChild` calls
 
 ### 4. Runtime → `references/migration/runtime.md`
-- Remove `Runtime<R>` type; use `ServiceMap<R>` in its place
+- Remove `Runtime<R>` type; use `Context<R>` in its place
 - Run functions live directly on `Effect` — no `Runtime` module needed for execution
 
 ### 5. Generators and Yieldable → `references/migration/generators.md` + `references/migration/yieldable.md`
@@ -92,6 +96,8 @@ Work through these in order — later changes often depend on earlier ones.
 ### 10. Schema → `references/schema.md`
 - `Schema` is now a Codec; use `Schema.revealCodec`, `Schema.toType`, `Schema.toEncoded`
 - Rename `decode*` / `encode*` → `decode*Effect` / `encode*Effect`
+- Rename `Schema.makeUnsafe` back to `Schema.make`
+- Use `Schema.makeEffect` when constructor-style parsing should return an `Effect` failure instead of throwing
 - `Schema.Union` / `Schema.Tuple` / `Schema.TemplateLiteral` now take arrays
 - `validate*` APIs removed
 

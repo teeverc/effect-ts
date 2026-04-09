@@ -7,7 +7,7 @@ Use this guide when deciding how/where to run effects.
 - Effects are descriptions; `run*` executes them.
 - Keep `run*` calls at the edge (CLI entrypoints, server bootstrap, tests).
 - Choose a runner based on sync/async and whether you need `Exit`.
-- `Runtime<R>` has been removed in v4; use `ServiceMap<R>` instead.
+- `Runtime<R>` has been removed in v4; use `Context<R>` instead.
 
 ## Patterns
 
@@ -26,8 +26,10 @@ Use this guide when deciding how/where to run effects.
 - `Runtime.defaultTeardown` — default teardown implementation
 - `Runtime.makeRunMain` — creates platform-specific main runners
 
-Use `ServiceMap<R>` in place of `Runtime<R>` where you previously bundled
+Use `Context<R>` in place of `Runtime<R>` where you previously bundled
 context, flags, and fiber refs into a single value.
+
+Older v4 betas used the name `ServiceMap<R>` for this environment type. Current upstream exports use `Context<R>`.
 
 ## Walkthrough: run and inspect Exit
 
@@ -51,7 +53,7 @@ Effect.runPromiseExit(program).then((exit) =>
 - Calling `run*` in library code (breaks composability).
 - Using `runSync` on async effects.
 - Dropping `Exit` when you need failure details.
-- Using the removed `Runtime<R>` type — use `ServiceMap<R>` instead.
+- Using the removed `Runtime<R>` type — use `Context<R>` instead.
 
 ## Agent checklist
 
@@ -59,4 +61,4 @@ Effect.runPromiseExit(program).then((exit) =>
 - Verify `R` is fully provided before runtime execution.
 - Choose `runPromiseExit` when failure diagnostics are needed by callers.
 - For background fibers, ensure there is an interruption/shutdown strategy.
-- Replace any `Runtime<R>` usage with `ServiceMap<R>`.
+- Replace any `Runtime<R>` usage with `Context<R>`.

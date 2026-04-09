@@ -6,6 +6,7 @@ Use this guide when adapting examples across Effect versions.
 - Prefer the latest Effect major release in examples.
 - Validate examples against current docs and API reference.
 - Treat release notes as the source of truth for breaking changes.
+- This skill has been audited against `effect-smol` changelogs through `4.0.0-beta.45` (April 9, 2026).
 
 ## Mental model
 
@@ -36,4 +37,3 @@ Use this guide when adapting examples across Effect versions.
 
 - `https://effect.website/docs/additional-resources/api-reference/`
 - `https://tim-smart.github.io/effect-io-ai/`
-

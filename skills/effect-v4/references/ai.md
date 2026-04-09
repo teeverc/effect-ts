@@ -13,6 +13,9 @@ Use this guide when tasks involve Effect AI integrations, structured planning, o
 
 - Define request/response schemas for model IO at boundaries.
 - Represent tool calls as typed services so they can be mocked in tests.
+- Prefer `Tool.dynamic(...)` when tool shape is only known at runtime or comes from JSON Schema.
+- Use `Tool.EmptyParams` for tools with no parameters instead of ad-hoc empty object schemas.
+- Reach for the Embeddings APIs when retrieval or semantic matching is part of the workflow.
 - Add retries/timeouts only where idempotency is clear.
 - Record structured logs and spans for model call inputs/outputs (with redaction for sensitive fields).
 - Fail fast on schema decode errors; do not silently coerce malformed model output.
@@ -30,6 +33,7 @@ Use this guide when tasks involve Effect AI integrations, structured planning, o
 - Embedding tool side effects directly inside prompt composition.
 - Accepting model output without schema checks.
 - Mixing transient transport failures with domain-level model failures.
+- Assuming toolkit/tool inference from older betas; current AI APIs support richer toolkit unions and dynamic-tool paths.
 - Logging full prompts/responses that contain secrets or PII.
 - Hard-coding provider-specific behavior into domain services.
 
