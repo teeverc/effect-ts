@@ -7,6 +7,7 @@ Use this guide when modeling repetition or time-based policies.
 - A `Schedule` describes a policy for recurrence and delay.
 - `Effect.repeat` runs once, then follows the schedule.
 - `Effect.schedule` follows the schedule without the initial run.
+- When using the newer options-based `Effect.repeat` forms, the repeated effect's return value is the one that flows through.
 
 ## Patterns
 
@@ -14,6 +15,7 @@ Use this guide when modeling repetition or time-based policies.
 - Use `Schedule.spaced("1 second")` for fixed spacing.
 - Combine schedules with `Schedule.jittered` and `Schedule.exponential` for backoff.
 - Use cron scheduling when recurrence is calendar-based (hour/day/week semantics).
+- Use `Cron.prev` / `Cron.next` style APIs instead of hand-rolled calendar math when you need exact calendar boundaries.
 
 ## Walkthrough: repeat with spacing and cap
 

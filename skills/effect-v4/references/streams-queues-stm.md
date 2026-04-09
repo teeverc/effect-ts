@@ -12,6 +12,9 @@ Use this guide for streaming and message-passing patterns.
 ## Patterns
 
 - Use `Stream.fromQueue` to turn a queue into a stream.
+- Use `Stream.service` / `Stream.serviceOption` when a stream needs to emit a service from the environment.
+- Use `Stream.timeoutOrElse` when timeout should switch to a fallback stream instead of failing.
+- Use `Stream.catchIf` for typed selective recovery on stream errors.
 - Use `Queue.bounded` for backpressure.
 - Use `STM.commit` to run STM transactions.
 - Use `Stream.run(Sink.*)` when consumption logic should be reusable.

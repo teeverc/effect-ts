@@ -40,13 +40,13 @@ const program = Effect.gen(function*() {
 ```ts
 import * as Effect from "effect/Effect"
 import * as Ref from "effect/Ref"
-import * as ServiceMap from "effect/ServiceMap"
+import * as Context from "effect/Context"
 
 interface Logger {
   log: (msg: string) => Effect.Effect<void>
 }
 
-const Logger = ServiceMap.Service<Logger>("Logger")
+const Logger = Context.Service<Logger>("Logger")
 
 const orchestrate = Effect.gen(function*() {
   const logger = yield* Logger

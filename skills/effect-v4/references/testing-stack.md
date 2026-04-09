@@ -35,14 +35,14 @@ const test = Effect.runPromise(program)
 ```ts
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
-import * as ServiceMap from "effect/ServiceMap"
+import * as Context from "effect/Context"
 import * as TestClock from "effect/testing/TestClock"
 
 interface Database {
   query: (sql: string) => Effect.Effect<unknown>
 }
 
-const Database = ServiceMap.Service<Database>("Database")
+const Database = Context.Service<Database>("Database")
 
 // Mock implementation for testing
 const TestDatabase = Layer.succeed(Database, {

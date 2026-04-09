@@ -64,7 +64,9 @@ Use `local: true` for test isolation where each test should get independent reso
 
 - Use `Layer.succeed` for pure values.
 - Use `Layer.effect` or `Layer.scoped` for effectful acquisition.
+- Use `Layer.suspend` when layer construction itself should be lazy.
 - Combine with `Layer.merge` and provide with `Effect.provide`.
+- Use `Layer.tap` / `Layer.tapError` / `Layer.tapCause` for observability around layer construction without changing outputs.
 - Use `Layer.fresh` or `{ local: true }` when isolation is required (tests, independent pools).
 
 ## Walkthrough: service + layer (v4)
@@ -72,9 +74,9 @@ Use `local: true` for test isolation where each test should get independent reso
 ```ts
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
-import * as ServiceMap from "effect/ServiceMap"
+import * as Context from "effect/Context"
 
-class Greeter extends ServiceMap.Service<Greeter>()("Greeter", {
+class Greeter extends Context.Service<Greeter>()("Greeter", {
   make: Effect.succeed({ greet: (name: string) => `hi ${name}` })
 }) {
   static layer = Layer.effect(this, this.make)

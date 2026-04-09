@@ -12,9 +12,11 @@ interface Runtime<in R> {
 }
 ```
 
-In v4, this type no longer exists and you can use `ServiceMap<R>` instead.
+In v4, this type no longer exists and you can use `Context<R>` instead.
 Run functions live directly on `Effect`, and the `Runtime` module is reduced to
 process lifecycle utilities.
+
+Older v4 betas used the name `ServiceMap<R>` for this environment type. Current upstream exports use `Context<R>`.
 
 ## `Runtime` Module Contents
 

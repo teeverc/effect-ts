@@ -9,12 +9,20 @@ description: "Effect v4 (beta) development and v3 → v4 migration guidance. Use
 
 Comprehensive guidance for Effect v4 development and migration from v3. This skill provides:
 
-1. **v4 Core Patterns** - Guide to building new v4 code with ServiceMap, layers, generators, schema codecs
+1. **v4 Core Patterns** - Guide to building new v4 code with `Context`, layers, generators, schema codecs
 2. **v3 → v4 Migration** - Step-by-step migration guidance with API renames, behavior changes, and before/after examples
 
 **Status:** Effect v4 is beta software under active development in [effect-smol](https://github.com/Effect-TS/effect-smol). The core programming model is stable, but `effect/unstable/*` modules may receive breaking changes in minor releases. For production use, review official v4 beta guidance and stability notes.
 
 All bundled migration guides are sourced from the official effect-smol migration documentation.
+
+## Upstream Changes Since February 22, 2026
+
+The upstream beta changed substantially after this skill was last refreshed. Treat older examples that mention `ServiceMap` or `Schema.makeUnsafe` as stale. Current guidance should prefer:
+
+- `Context.Service` / `Context.Reference` / `Context<R>` instead of `ServiceMap.*`
+- `Schema.make(...)` instead of `Schema.makeUnsafe(...)`
+- `Schema.makeEffect(...)` when constructor-style validation should fail in the error channel instead of throwing
 
 ## Quick Triage
 
@@ -26,12 +34,12 @@ All bundled migration guides are sourced from the official effect-smol migration
 - Expected errors vs defects, `catch*` combinators: `references/error-management.md`
 - Sandboxing, Cause inspection, `catchCause`: `references/error-tooling.md`
 - Exit and Cause structure, result inspection: `references/exit-cause.md`
-- Services and dependency injection (ServiceMap, layers): `references/dependency-management.md`
+- Services and dependency injection (`Context`, layers): `references/dependency-management.md`
 - Layer construction, memoization, `{ local: true }`: `references/layer-patterns.md`
 - Resource lifecycles, Scope, `acquireRelease`: `references/resource-management.md`
 - Running effects, `Runtime` removal, run boundaries: `references/runtime-execution.md`
 - Fibers, `forkChild`, `forkDetach`, fork options: `references/concurrency.md`
-- References (replaces FiberRef), `ServiceMap.Reference`: `references/concurrency-advanced.md`
+- References (replaces FiberRef), `Context.Reference`: `references/concurrency-advanced.md`
 - Schedules, repetition, spaced/fixed/exponential: `references/scheduling.md`
 - Retries, backoff, schedule composition: `references/scheduling-retry.md`
 - Streams, queues, PubSub, STM: `references/streams-queues-stm.md`
@@ -62,7 +70,7 @@ All bundled migration guides are sourced from the official effect-smol migration
 - Runtime and run functions: `references/migration/runtime.md`
 - Error handling and error channel changes: `references/migration/error-handling.md`
 - Cause flattening and new structure: `references/migration/cause.md`
-- Services and environment changes (Context.Tag → ServiceMap.Service): `references/migration/services.md`
+- Services and environment changes (`Context.Tag` / `Effect.Service` → `Context.Service`): `references/migration/services.md`
 - Fiber references and context locals: `references/migration/fiberref.md`
 - Forking and fiber APIs (fork → forkChild, etc.): `references/migration/forking.md`
 - Fiber keep-alive behavior changes: `references/migration/fiber-keep-alive.md`
@@ -79,6 +87,13 @@ All bundled migration guides are sourced from the official effect-smol migration
 3. Produce a mapping of v3 to v4 APIs, including before/after code snippets.
 4. Call out behavior changes, edge cases, and test updates needed.
 5. Provide a short, ordered migration checklist tailored to the code in question.
+
+## Source of Truth
+
+- Start with the bundled references in this skill.
+- If the question depends on newer beta behavior, check the official docs and `effect-smol` changelogs next.
+- Only inspect `effect-smol` source internals when the docs/changelogs are ambiguous, the user is asking about internals, or the behavior appears undocumented.
+- Do not clone or read the repo source by default when the bundled references or official docs already answer the question.
 
 ## Example Requests
 
@@ -98,12 +113,12 @@ Comprehensive v4-specific guides (all updated for v4 APIs, no deprecated pattern
 - `references/error-management.md` - `catch*` renames, `catchReason`, `catchEager`
 - `references/error-tooling.md` - `catchCause`, sandboxing, Cause inspection
 - `references/exit-cause.md` - Flattened Cause structure, Reason iteration
-- `references/dependency-management.md` - ServiceMap, services, layers
+- `references/dependency-management.md` - Context, services, layers
 - `references/layer-patterns.md` - Cross-provide memoization, `{ local: true }`
 - `references/resource-management.md` - `Scope.provide` (was `Scope.extend`)
 - `references/runtime-execution.md` - `Runtime<R>` removed, run* at the edge
 - `references/concurrency.md` - `forkChild`/`forkDetach`, fork options, keep-alive
-- `references/concurrency-advanced.md` - `ServiceMap.Reference` (was `FiberRef`)
+- `references/concurrency-advanced.md` - `Context.Reference` (was `FiberRef`)
 - `references/scheduling.md` - Schedules and repetition
 - `references/scheduling-retry.md` - Retries and backoff
 - `references/streams-queues-stm.md` - Streams, queues, PubSub, STM
@@ -117,7 +132,7 @@ Comprehensive v4-specific guides (all updated for v4 APIs, no deprecated pattern
 - `references/observability-examples.md` - Concrete logger/metrics/tracing setups
 - `references/observability-wiring.md` - Wiring observability layers
 - `references/generators.md` - Effect.gen and yieldable patterns
-- `references/schema.md` - Schema codecs (decode/encode)
+- `references/schema.md` - Schema codecs plus `Schema.make` / `Schema.makeEffect`
 - `references/sink.md` - Stream consumption with Sink
 - `references/testing.md` - TestClock and deterministic time
 - `references/testing-stack.md` - Test layer composition
@@ -142,5 +157,5 @@ Comprehensive v4-specific guides (all updated for v4 APIs, no deprecated pattern
 - `references/migration/layer-memoization.md` - Layer.fresh and memoization
 - `references/migration/runtime.md` - Runtime and run* functions
 - `references/migration/scope.md` - Scope and resource lifecycle
-- `references/migration/services.md` - Context.Tag → ServiceMap.Service
+- `references/migration/services.md` - Current `Context.Service` API and older beta `ServiceMap` rename fallout
 - `references/migration/yieldable.md` - Yieldable protocol changes

@@ -13,6 +13,8 @@ Use this guide when defining and serving HTTP APIs.
 - Define endpoints with `HttpApiEndpoint` and group them with `HttpApiGroup`.
 - Implement groups with `HttpApiBuilder.group` and assemble with `HttpApiBuilder.api`.
 - Serve with `HttpApiBuilder.serve()` and a platform server layer.
+- Prefer the built-in graceful shutdown support instead of rolling your own signal/finalizer wiring.
+- Use `HttpApiMiddleware.layerSchemaErrorTransform` when schema-decoding errors need to be mapped into your API error model.
 - Add Swagger docs via `HttpApiSwagger.layer()`.
 
 ## Walkthrough: Hello World server

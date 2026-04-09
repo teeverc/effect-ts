@@ -13,6 +13,7 @@ Use this guide when instrumenting Effect programs.
 - Use `Effect.logInfo`/`logError` for explicit levels.
 - Use `Effect.annotateLogs` and `Effect.annotateSpans` for context.
 - Use `Effect.withSpan` to wrap traced work.
+- When consuming the unstable HTTP middleware logger, expect `http.url` annotations to contain the request path rather than the full URL.
 
 ## Walkthrough: log + span
 
