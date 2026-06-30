@@ -34,6 +34,8 @@ Use this guide as the entry point when upgrading a v3 codebase to v4. It covers 
 | `Schema.encodedSchema` | `Schema.toEncoded` |
 | `Schema.typeSchema` | `Schema.toType` |
 | `Schema.makeUnsafe` | `Schema.make` |
+| `SchemaParser.makeUnsafe` | `SchemaParser.make` |
+| `Schema.Codec.ToAsserts` | Removed; use `Schema.asserts(schema, input)` |
 | constructor-style throwing parse with custom wrapper | `Schema.makeEffect` |
 | `Schema.Union(a, b)` | `Schema.Union([a, b])` |
 | `Schema.Tuple(a, b)` | `Schema.Tuple([a, b])` |
@@ -72,9 +74,9 @@ Work through these in order — later changes often depend on earlier ones.
 - Remove `Runtime<R>` type; use `Context<R>` in its place
 - Run functions live directly on `Effect` — no `Runtime` module needed for execution
 
-### 5. Generators and Yieldable → `references/migration/generators.md` + `references/migration/yieldable.md`
+### 5. Generators and Effectable → `references/migration/generators.md` + `references/migration/yieldable.md`
 - Many v3 types no longer subtype `Effect`; call module helpers (`Ref.get`, `Deferred.await`, `Fiber.join`) inside `Effect.gen`
-- Use `.asEffect()` to feed a Yieldable into Effect combinators
+- Do not use removed `Effect.Yieldable` / `.asEffect()` guidance; define custom Effect-like values with `Effectable.Class` or `Effectable.Prototype`
 
 ### 6. Cause → `references/migration/cause.md`
 - `Cause` is now a flat `{ reasons: ReadonlyArray<Reason<E>> }` — remove tree-walking code
@@ -97,7 +99,9 @@ Work through these in order — later changes often depend on earlier ones.
 - `Schema` is now a Codec; use `Schema.revealCodec`, `Schema.toType`, `Schema.toEncoded`
 - Rename `decode*` / `encode*` → `decode*Effect` / `encode*Effect`
 - Rename `Schema.makeUnsafe` back to `Schema.make`
+- Rename `SchemaParser.makeUnsafe` to `SchemaParser.make`
 - Use `Schema.makeEffect` when constructor-style parsing should return an `Effect` failure instead of throwing
+- Use `Schema.asserts(schema, input)` / `SchemaParser.asserts(schema, input)` for assertion helpers
 - `Schema.Union` / `Schema.Tuple` / `Schema.TemplateLiteral` now take arrays
 - `validate*` APIs removed
 

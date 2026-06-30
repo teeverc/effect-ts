@@ -9,6 +9,7 @@ Use this guide when you need validation, parsing, or encoding.
 - `encode*Effect` converts typed values to an encoded representation (replaces `encode*` from v3).
 - `validate*` APIs are removed; use `decode*Effect` + `Schema.toType` instead.
 - Constructor-style schema APIs use `Schema.make(...)` again, not `Schema.makeUnsafe(...)`.
+- Standalone constructor helpers use `SchemaParser.make(...)`, not `SchemaParser.makeUnsafe(...)`.
 - Use `Schema.makeEffect(...)` when you want constructor-style parsing to fail in the error channel with `Schema.SchemaError`.
 
 ## Patterns
@@ -19,9 +20,13 @@ Use this guide when you need validation, parsing, or encoding.
 - Use `Schema.decodeUnknownEffect` for Effect-based decoding at boundaries.
 - Use `Schema.make` on schema-backed classes or schemas when invalid input should throw synchronously.
 - Use `Schema.makeEffect` when invalid input should be represented as `Effect` failure.
+- Use `Schema.makeOption` or `SchemaParser.makeOption` when schema failures should become `Option.None`.
+- Use `Schema.asserts(schema, input)` / `SchemaParser.asserts(schema, input)` to assert an existing value directly.
 - Use `Schema.toType` / `Schema.toEncoded` when you need explicit type or encoded schemas.
+- `Schema.toType`, `Schema.toEncoded`, `Schema.toCodecJson`, and `Schema.toCodecStringTree` wrappers expose the original source schema on `.schema`.
 - Use `Schema.asClass` when you want class ergonomics on top of an existing schema.
 - Use `Schema.ArrayEnsure` when the input may be either a single value or an array but the output should always be an array.
+- Use `Schema.DurationFromString` for duration strings and `Schema.GUID` for UUID/GUID-style string validation.
 - `Schema.Union` and `Schema.Tuple` take **arrays** in v4 (not varargs).
 
 ## Walkthrough: decode and encode
@@ -120,11 +125,20 @@ const program = Effect.gen(function*() {
 
 ## Recent Beta Notes
 
+- `Schema.Void` now models ignored `void` return values: a present value decodes to `undefined`. Use `Schema.Undefined` when the input must be exactly `undefined`.
+- `SchemaParser.makeUnsafe` was renamed to `SchemaParser.make`.
+- `Schema.asserts` and `SchemaParser.asserts` now take `(schema, input)` and assert that value directly; `Schema.Codec.ToAsserts` was removed.
+- Schema and SchemaParser boundary APIs now distinguish schema failures from non-schema causes. Effect/Exit adapters preserve full causes, while sync/promise/result/option adapters normalize schema-only failures to their normal representation.
+- Decoding defaults (`withDecodingDefault*`) may require services through the resulting schema's decoding services.
+- Constructor and decoding defaults may fail with `SchemaError`; parse failures preserve the surrounding path.
+- `Schema.toCodecStringTree` no longer accepts `keepDeclarations`.
+- `Schema.encodeKeys` is exported.
 - `MakeOptions.disableValidation` was renamed to `disableChecks`.
 - Constructor defaults still apply when `disableChecks: true` is used.
 - `Schema.resolveAnnotationsKey` lets you inspect key-level annotations from a schema.
 - `Schema.asClass` turns any schema into a class with static schema helpers.
 - Schema-backed class APIs now enforce the `Self` generic more aggressively via clearer compile-time errors.
+- Schema-backed class constructors have current fixes for excess property handling, optional-all fields, `.extend(Struct)`, and encoded-side checks on container ASTs.
 
 ## Pitfalls
 
@@ -133,6 +147,9 @@ const program = Effect.gen(function*() {
 - Relying on removed `validate*` APIs; use `decode*Effect` + `Schema.toType` instead.
 - Forgetting that `Schema.Union` and `Schema.Tuple` take arrays in v4 (not varargs).
 - Using stale beta docs that mention `Schema.makeUnsafe`; the current API is `Schema.make`.
+- Using stale beta docs that mention `SchemaParser.makeUnsafe`; the current API is `SchemaParser.make`.
+- Expecting `Schema.Void` to reject present values; use `Schema.Undefined` for exact-undefined parsing.
+- Passing `keepDeclarations` to `Schema.toCodecStringTree`.
 - Using stale option names like `disableValidation`; the current constructor option is `disableChecks`.
 - Not providing `Schema.decodeUnknownEffect` at API boundaries; only use sync variants for trusted internal data.
 

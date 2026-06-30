@@ -15,6 +15,8 @@ Use this guide for streaming and message-passing patterns.
 - Use `Stream.service` / `Stream.serviceOption` when a stream needs to emit a service from the environment.
 - Use `Stream.timeoutOrElse` when timeout should switch to a fallback stream instead of failing.
 - Use `Stream.catchIf` for typed selective recovery on stream errors.
+- Use `Stream.broadcastN({ n, capacity })` for fixed-size fan-out.
+- Use `Stream.toQueue(stream, { capacity })` or `Stream.runIntoQueue` with the current options-based signatures.
 - Use `Queue.bounded` for backpressure.
 - Use `STM.commit` to run STM transactions.
 - Use `Stream.run(Sink.*)` when consumption logic should be reusable.
@@ -39,6 +41,8 @@ const program = Effect.gen(function*() {
 - Using unbounded queues when backpressure is needed.
 - Forgetting to shut down queues in long-lived apps.
 - Encoding reducers directly in callbacks instead of reusable sinks.
+- Assuming `Stream.splitLines` drops a final unterminated line or ignores standalone `\r`; current behavior treats standalone carriage returns as line terminators and flushes the final line.
+- Decoding text across chunk boundaries manually; `Channel.decodeText` has fixes for split UTF-8 characters.
 
 ## Docs
 

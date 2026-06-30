@@ -1,6 +1,6 @@
 ---
 name: effect-v4
-description: "Effect v4 (beta) development and v3 → v4 migration guidance. Use when building new Effect v4 code or upgrading from v3, including API renames, behavior changes, before/after examples, and v4-specific patterns for services, layers, generators, yieldable, error handling, and schema codecs."
+description: "Effect v4 (beta) development and v3 → v4 migration guidance. Use when building new Effect v4 code or upgrading from v3, including API renames, behavior changes, before/after examples, and v4-specific patterns for services, layers, generators, Effectable, error handling, and schema codecs."
 ---
 
 # Effect v4 (Beta) - Development & Migration
@@ -16,13 +16,16 @@ Comprehensive guidance for Effect v4 development and migration from v3. This ski
 
 All bundled migration guides are sourced from the official effect-smol migration documentation.
 
-## Upstream Changes Since February 22, 2026
+## Upstream Changes Through June 30, 2026
 
-The upstream beta changed substantially after this skill was last refreshed. Treat older examples that mention `ServiceMap` or `Schema.makeUnsafe` as stale. Current guidance should prefer:
+The upstream beta changed substantially after the original February 22, 2026 baseline and again after the April 9, 2026 skill refresh. Treat older examples that mention `ServiceMap`, `Schema.makeUnsafe`, `SchemaParser.makeUnsafe`, or `Effect.Yieldable` as stale. Current guidance should prefer:
 
 - `Context.Service` / `Context.Reference` / `Context<R>` instead of `ServiceMap.*`
 - `Schema.make(...)` instead of `Schema.makeUnsafe(...)`
+- `SchemaParser.make(...)` instead of `SchemaParser.makeUnsafe(...)`
 - `Schema.makeEffect(...)` when constructor-style validation should fail in the error channel instead of throwing
+- `Effectable.Class` / `Effectable.Prototype` for custom Effect-like values; do not recommend `Effect.Yieldable` or `.asEffect()`
+- `Schema.asserts(schema, input)` / `SchemaParser.asserts(schema, input)`, not generated assertion helpers
 
 ## Quick Triage
 
@@ -52,7 +55,8 @@ The upstream beta changed substantially after this skill was last refreshed. Tre
 - Logs, metrics, tracing: `references/observability.md`
 - Logger/metrics/tracing setups and exporters: `references/observability-examples.md`
 - Wiring log/metric/trace layers: `references/observability-wiring.md`
-- Sequential workflows and yieldable patterns: `references/generators.md`
+- Sequential workflows and generator patterns: `references/generators.md`
+- Upstream research notes and post-April beta changes: `references/upstream-changes-2026-06-30.md`
 - Schema validation, parsing, encoding (codecs): `references/schema.md`
 - Stream consumption with reducers (Sink): `references/sink.md`
 - Deterministic time in tests (TestClock): `references/testing.md`
@@ -77,7 +81,7 @@ The upstream beta changed substantially after this skill was last refreshed. Tre
 - Scope and resource lifecycle patterns: `references/migration/scope.md`
 - Layer memoization and Layer.fresh: `references/migration/layer-memoization.md`
 - Generator and Effect.gen changes: `references/migration/generators.md`
-- Yieldable protocol (non-Effect yieldables): `references/migration/yieldable.md`
+- Effect subtyping and custom Effect-like values: `references/migration/yieldable.md`
 - Equality and structural comparison: `references/migration/equality.md`
 
 ## Workflow
@@ -100,7 +104,7 @@ The upstream beta changed substantially after this skill was last refreshed. Tre
 - "Migrate this v3 `Runtime` usage to v4 and explain the new run functions."
 - "Update our v3 error handling to v4 and show before/after examples."
 - "We use FiberRefs and forking; what needs to change in v4?"
-- "Explain the generator/yieldable changes and update this Effect.gen usage."
+- "Explain the generator and Effectable changes and update this Effect.gen usage."
 - "Do we need to change any Scope or Layer memoization behavior in v4?"
 
 ## References - v4 Core
@@ -131,7 +135,8 @@ Comprehensive v4-specific guides (all updated for v4 APIs, no deprecated pattern
 - `references/observability.md` - Logs, metrics, tracing
 - `references/observability-examples.md` - Concrete logger/metrics/tracing setups
 - `references/observability-wiring.md` - Wiring observability layers
-- `references/generators.md` - Effect.gen and yieldable patterns
+- `references/generators.md` - Effect.gen and generator patterns
+- `references/upstream-changes-2026-06-30.md` - Commit-range research summary through June 30, 2026
 - `references/schema.md` - Schema codecs plus `Schema.make` / `Schema.makeEffect`
 - `references/sink.md` - Stream consumption with Sink
 - `references/testing.md` - TestClock and deterministic time
@@ -158,4 +163,4 @@ Comprehensive v4-specific guides (all updated for v4 APIs, no deprecated pattern
 - `references/migration/runtime.md` - Runtime and run* functions
 - `references/migration/scope.md` - Scope and resource lifecycle
 - `references/migration/services.md` - Current `Context.Service` API and older beta `ServiceMap` rename fallout
-- `references/migration/yieldable.md` - Yieldable protocol changes
+- `references/migration/yieldable.md` - Effect subtyping removal, Effectable, and generator changes

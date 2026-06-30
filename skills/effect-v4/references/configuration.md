@@ -12,6 +12,8 @@ Use this guide when loading or validating runtime configuration.
 
 - Use `Config.all` to build structured config.
 - Use `Config.withDefault` for optional values.
+- Use `Config.literals([...], key)` for literal-string configuration backed by `Schema.Literals`.
+- Use `Config.schema(schema, key)` when config should be decoded by a schema.
 - Use `ConfigProvider.fromEnv` or `fromMap` for overrides.
 - Decode once near startup and provide typed config to services/layers.
 
@@ -38,8 +40,9 @@ const program = AppConfig.pipe(
 
 - Reading config inside libraries instead of at startup.
 - Using untyped strings for structured config.
-- Expecting `withDefault` to cover parse errors (it only applies when the value is missing).
+- Expecting `withDefault` to cover parse errors. It applies to missing data; current `Config.schema` also treats missing array values as missing so defaults can apply.
 - Nested keys depend on provider delimiters (configure `fromEnv`/`fromMap` accordingly).
+- Assuming old config path composition behavior; current providers have fixes for path composition and directory-backed lookup.
 
 ## Docs
 

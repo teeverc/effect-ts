@@ -16,6 +16,8 @@ Use this guide when modeling repetition or time-based policies.
 - Combine schedules with `Schedule.jittered` and `Schedule.exponential` for backoff.
 - Use cron scheduling when recurrence is calendar-based (hour/day/week semantics).
 - Use `Cron.prev` / `Cron.next` style APIs instead of hand-rolled calendar math when you need exact calendar boundaries.
+- Use `Schedule.tap` to observe full schedule metadata without changing inputs or outputs.
+- Use `Schedule.andThenResult` when the output must show whether it came from the first or second phase.
 
 ## Walkthrough: repeat with spacing and cap
 
@@ -37,6 +39,7 @@ const program = Effect.succeed("tick").pipe(
 - Missing caps on retries/repeats.
 - Forgetting jitter in high-concurrency retries.
 - Encoding calendar logic manually when a cron schedule is clearer.
+- Assuming old `Schedule.andThenResult` polarity; current output is `Failure` for the first schedule and `Success` for the second.
 
 ## Docs
 
