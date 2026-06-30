@@ -5,16 +5,18 @@ Use this guide when sequential logic would be clearer than pipelines.
 ## Mental model
 
 - `Effect.gen` is async/await-style control flow for Effects.
-- `yield*` extracts values from effects and Yieldables in order.
+- `yield*` extracts values from `Effect` values in order.
 - The error channel short-circuits just like thrown errors in async/await.
-- **v4 change:** Many values are Yieldable but not Effects. Use module functions like `Ref.get`, `Deferred.await`, `Fiber.join` instead of yielding the raw values.
+- **Current beta:** `Effect.Yieldable` was removed. Use module functions like `Ref.get`, `Deferred.await`, `Fiber.join`, or `Effect.service` instead of yielding raw data handles.
+- Service keys created with `Context.Service` / `Context.Reference` can still be yielded because their implementation is Effect-like.
+- `Config` values are also Effect-like and can be yielded to load from the current `ConfigProvider`.
 
 ## Patterns
 
 - Prefer generators for multi-step workflows and branching.
 - Keep small effects for each step and compose with `yield*`.
 - Use `Effect.catch` (v3: `Effect.catchAll`) or `Effect.catchTag` at the boundary for recovery.
-- If a value is Yieldable but not an Effect, call `.asEffect()` before using Effect combinators.
+- If you need custom Effect-like values, use `Effectable.Class` or `Effectable.Prototype`; ordinary values should expose explicit functions that return `Effect`.
 
 ## Walkthrough: sequential flow with branching
 
@@ -67,9 +69,9 @@ const orchestrate = Effect.gen(function*() {
 })
 ```
 
-## Practical Example: Working with Yieldable (v4 change)
+## Practical Example: Reading Handles Explicitly
 
-In v4, many values are Yieldable but not Effects. Use module functions to access them:
+In current v4 betas, data handles are plain values. Use module functions to access or await them:
 
 ```ts
 import * as Effect from "effect/Effect"
@@ -78,23 +80,32 @@ import * as Deferred from "effect/Deferred"
 import * as Fiber from "effect/Fiber"
 
 const workflow = Effect.gen(function*() {
-  // ✓ Ref.get returns a Yieldable
   const counter = yield* Ref.make(0)
   const current = yield* Ref.get(counter)
 
-  // ✓ Deferred.await returns a Yieldable
   const deferred = yield* Deferred.make<string, Error>()
   const value = yield* Deferred.await(deferred)
 
-  // ✓ Fiber.join returns a Yieldable
   const fiber = yield* Effect.forkChild(Effect.sleep(1000))
   yield* Fiber.join(fiber)
 
-  return current
+  return { current, value }
 })
+```
 
-// If you need to feed a Yieldable into Effect combinators, use .asEffect()
-const refAsEffect = Ref.get(yield* Ref.make(0)).asEffect()
+## Custom Effect-like Values
+
+```ts
+import * as Effect from "effect/Effect"
+import * as Effectable from "effect/Effectable"
+
+class CurrentTime extends Effectable.Class<number> {
+  override = Effect.sync(() => Date.now())
+}
+
+const program = Effect.gen(function*() {
+  return yield* new CurrentTime()
+})
 ```
 
 ## Pitfalls
@@ -102,7 +113,7 @@ const refAsEffect = Ref.get(yield* Ref.make(0)).asEffect()
 - Nesting generators unnecessarily instead of extracting helpers.
 - Throwing exceptions in generators instead of failing effects.
 - Using `Effect.gen` when a simple pipeline is clearer.
-- Yielding non-yieldable values such as `Ref` or `Fiber` directly (use `Ref.get` / `Fiber.join`).
-- Forgetting to call `.asEffect()` when passing Yieldable values to Effect combinators like `Effect.all` or `Effect.flatMap`.
+- Yielding plain values such as `Ref`, `Deferred`, or `Fiber` directly instead of `Ref.get`, `Deferred.await`, or `Fiber.join`.
+- Recommending removed `Effect.Yieldable` or `.asEffect()` in current v4 guidance.
 
 See `references/migration/generators.md` and `references/migration/yieldable.md` for detailed v3 → v4 changes.

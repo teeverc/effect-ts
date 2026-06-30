@@ -15,6 +15,11 @@ Use this guide for everyday Effect composition and common data types in Effect v
 - Use `Effect.catch` (v3: `Effect.catchAll`) or `Effect.match` to handle failures and branch on success vs error.
 - Use `Effect.all` to gather multiple effects; specify `concurrency` options for parallel execution.
 - Use `Effect.filterOrFail` and `Effect.filterOrElse` to refine values with failure handling.
+- Use `Effect.firstSuccessOf` when trying alternatives until one succeeds.
+- Use `Effect.transposeOption` when turning `Option<Effect<A, E, R>>` into `Effect<Option<A>, E, R>`.
+- Use `Effect.fromOption` with custom error callbacks when `None` should map to domain-specific failures.
+- Use `Effect.abortSignal` at Promise / fetch boundaries that should be interrupted by the current fiber.
+- Use `Effect.acquireDisposable` for resources that expose disposal semantics.
 
 ## Guidance
 - Keep effects lazy; build values first and run them at the edge with `Effect.runPromise` or `Effect.runFork`.
@@ -70,5 +75,11 @@ const getConfigOrDefault = (userId: string) =>
 | `Effect.catchAll` | `Effect.catch` |
 | `Effect.catchAllCause` | `Effect.catchCause` |
 | `Effect.catchSome` | `Effect.catchFilter` |
+
+## Recent Beta Notes
+
+- `Effect.try` and `Effect.tryPromise` received fixes around thunk usage, error mapping, and abort signal handling. Prefer the object form when you need a typed `catch` mapper or access to a signal.
+- Module-level side effects were made more tree-shakable; avoid patterns that rely on import-time work.
+- `Random.choice` was ported from v3 for selecting a random element from an iterable.
 
 See `references/migration/error-handling.md` for detailed error handling changes.
