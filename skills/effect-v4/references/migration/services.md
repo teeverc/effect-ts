@@ -1,12 +1,11 @@
-# Services: `Context.Tag` / `Effect.Service` → `Context.Service`
+# Services: `Context.Tag` → `Context.Service`
 
 In v3, services were defined using `Context.Tag`, `Context.GenericTag`,
-`Effect.Tag`, or `Effect.Service`. In current v4, all of these converge on
+`Effect.Tag`, or `Effect.Service`. In v4, all of these have been replaced by
 `Context.Service`.
 
-Earlier v4 beta releases briefly renamed the module to `ServiceMap`. That
-rename has been reverted upstream, so current code should use `Context`,
-`Context.Service`, and `Context.Reference`.
+The underlying runtime data structure is a typed map from service identifiers to
+their implementations.
 
 ## Defining Services
 
@@ -185,7 +184,7 @@ class Logger extends Context.Service<Logger>()("Logger", {
   })
 }) {
   // Build the layer yourself from the make effect
-  static layer = Layer.effect(this, this.make).pipe(
+  static readonly layer = Layer.effect(this, this.make).pipe(
     Layer.provide(Config.layer)
   )
 }
@@ -223,14 +222,14 @@ const LogLevel = Context.Reference<"info" | "warn" | "error">("LogLevel", {
 
 ## Quick Reference
 
-| v3                                    | v4                                         |
-| ------------------------------------- | ------------------------------------------ |
-| `Context.GenericTag<T>(id)`           | `Context.Service<T>(id)`                   |
-| `Context.Tag(id)<Self, Shape>()`      | `Context.Service<Self, Shape>()(id)`       |
-| `Effect.Tag(id)<Self, Shape>()`       | `Context.Service<Self, Shape>()(id)`       |
-| `Effect.Service<Self>()(id, opts)`    | `Context.Service<Self>()(id, { make })`    |
-| `Context.Reference<Self>()(id, opts)` | `Context.Reference<T>(id, opts)`           |
-| `Context.make(tag, impl)`             | `Context.make(tag, impl)`                  |
-| `Context.get(ctx, tag)`               | `Context.get(ctx, tag)`                    |
-| `Context.add(ctx, tag, impl)`         | `Context.add(ctx, tag, impl)`              |
-| `Context.mergeAll(...)`               | `Context.mergeAll(...)`                    |
+| v3                                    | v4                                      |
+| ------------------------------------- | --------------------------------------- |
+| `Context.GenericTag<T>(id)`           | `Context.Service<T>(id)`                |
+| `Context.Tag(id)<Self, Shape>()`      | `Context.Service<Self, Shape>()(id)`    |
+| `Effect.Tag(id)<Self, Shape>()`       | `Context.Service<Self, Shape>()(id)`    |
+| `Effect.Service<Self>()(id, opts)`    | `Context.Service<Self>()(id, { make })` |
+| `Context.Reference<Self>()(id, opts)` | `Context.Reference<T>(id, opts)`        |
+| `Context.make(tag, impl)`             | `Context.make(tag, impl)`               |
+| `Context.get(ctx, tag)`               | `Context.get(map, tag)`                 |
+| `Context.add(ctx, tag, impl)`         | `Context.add(map, tag, impl)`           |
+| `Context.mergeAll(...)`               | `Context.mergeAll(...)`                 |

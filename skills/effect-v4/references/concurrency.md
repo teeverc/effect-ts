@@ -1,119 +1,176 @@
-# Concurrency (Fibers and Forking) - v4
+# Concurrency (Fibers, Forking, Racing)
 
-Use this guide when you need concurrent execution or background work.
-
-- Effects run on fibers, which are lightweight virtual threads managed by the Effect runtime.
-- `Effect.forkChild` starts an effect in a child fiber supervised by its parent (v3: `Effect.fork`).
-- `Effect.forkDetach` starts a fiber detached from parent lifecycle (v3: `Effect.forkDaemon`).
-- `Effect.forkScoped` starts a child fiber tied to a local scope, independent of the parent.
-- `Effect.forkIn` starts a child fiber in a specific scope for precise lifetime control.
+Use this guide for running work concurrently, forking fibers, and racing.
+Coordination primitives (Semaphore, Latch, Deferred, Ref, References) are in
+`references/concurrency-advanced.md`; queues/pubsub/STM in `streams-queues-stm.md`.
 
 ## Mental model
 
-- Concurrency is structured: forked work should be joined, interrupted, or scoped.
-- Prefer high-level combinators (`Effect.all`, `Effect.forEach`) over manual fibers.
-- Use scopes to prevent background tasks from leaking.
-- In v4, the runtime keeps the process alive while fibers are suspended — `runMain` is no longer required for this, but is still recommended for signal handling.
+- Effects run on fibers (lightweight virtual threads). Concurrency is
+  structured: every fiber has an owner (parent fiber, a `Scope`, or a
+  fiber collection) that interrupts it when the owner ends.
+- Prefer high-level combinators (`Effect.all`, `Effect.forEach`, `race*`,
+  `Stream`) over manual forking.
+- Interruption is cooperative and runs finalizers; acquisition in
+  `acquireRelease` is uninterruptible by default.
 
-## v4 Forking API Changes
-
-| v3                            | v4                  |
-| ----------------------------- | ------------------- |
-| `Effect.fork`                 | `Effect.forkChild`  |
-| `Effect.forkDaemon`           | `Effect.forkDetach` |
-| `Effect.forkScoped`           | `Effect.forkScoped` (unchanged) |
-| `Effect.forkIn`               | `Effect.forkIn` (unchanged) |
-| `Effect.forkAll`              | Removed             |
-| `Effect.forkWithErrorHandler` | Removed             |
-
-## Fork Options (New in v4)
-
-All fork functions accept an optional options object:
+## Collection concurrency
 
 ```ts
-{
-  readonly startImmediately?: boolean   // true: start immediately, default: deferred
-  readonly uninterruptible?: boolean | "inherit"  // control interruptibility
-}
-```
+import { Effect } from "effect"
 
-```ts
-import * as Effect from "effect/Effect"
+// Sequential by default
+const users = yield* Effect.forEach(ids, (id) => fetchUser(id))
 
-// data-last
-const fiber = myEffect.pipe(
-  Effect.forkChild({ startImmediately: true })
+// Bounded parallelism
+const users2 = yield* Effect.forEach(ids, fetchUser, { concurrency: 8 })
+
+// Fire for side effects, discard results
+yield* Effect.forEach(ids, notify, { concurrency: "unbounded", discard: true })
+
+// Tuples / iterables / structs
+const { user, posts } = yield* Effect.all(
+  { user: fetchUser(id), posts: fetchPosts(id) },
+  { concurrency: 2 }
 )
 
-// data-first
-const fiber2 = Effect.forkChild(myEffect, { startImmediately: true })
+// Collect every outcome instead of short-circuiting: each element is a Result
+const results = yield* Effect.all([a, b, c], { mode: "result", concurrency: 3 })
+
+// Run everything, split outcomes. 4.0.0: returns [successes, failures]
+const [ok, failed] = yield* Effect.partition(ids, fetchUser, { concurrency: 4 })
 ```
 
-## Walkthrough: scoped background worker
+- `concurrency: number | "unbounded"`. The `"inherit"` option and
+  `Effect.withConcurrency` (ambient concurrency) were **removed** in v4 —
+  always pass the value explicitly.
+- `Effect.all` `mode`: `"default"` (fail fast; interrupts siblings) or
+  `"result"` (v3 `"either"`). To accumulate all failures over a collection use
+  `Effect.validate(xs, f, { concurrency })` (fails with a non-empty array of errors).
+- On failure with concurrency, siblings are interrupted and their cleanup
+  failures are preserved in the `Cause` (4.0.0).
+
+## Forking
+
+| v3 | v4 | Owner / lifetime |
+|---|---|---|
+| `Effect.fork` | `Effect.forkChild` | parent fiber; interrupted when parent ends |
+| `Effect.forkDaemon` | `Effect.forkDetach` | global; outlives the parent |
+| `Effect.forkScoped` | `Effect.forkScoped` | current `Scope` (adds `Scope` to `R`) |
+| `Effect.forkIn(scope)` | `Effect.forkIn(scope)` | given `Scope` |
+| `Effect.forkAll` | removed — `Effect.forEach(effects, (e) => Effect.forkChild(e))` or `FiberSet` | |
+| `Effect.forkWithErrorHandler` | removed — observe with `Fiber.join`/`Fiber.await` | |
+| `Effect.supervised` / `Supervisor` | removed — track with `FiberSet` | |
+
+All four accept options, data-first or data-last:
 
 ```ts
-import * as Effect from "effect/Effect"
-import * as Schedule from "effect/Schedule"
-
-const worker = Effect.succeed("tick").pipe(
-  Effect.repeat(Schedule.spaced("1 second"))
-)
-
-const program = Effect.scoped(
-  Effect.gen(function*() {
-    yield* Effect.forkScoped(worker)
-    return "worker running"
-  })
-)
+const f1 = yield* Effect.forkChild(task, { startImmediately: true })
+const f2 = yield* task.pipe(Effect.forkScoped({ uninterruptible: true }))
+const f3 = yield* Effect.forkIn(task, scope, { startImmediately: true })
+// startImmediately?: boolean          - run synchronously up to the first async boundary
+// uninterruptible?: boolean | "inherit"
 ```
 
-## Walkthrough: fork and join
+`Effect.awaitAllChildren(effect)` delays completion until children forked by
+`effect` (via `forkChild`) finish.
 
 ```ts
-import * as Effect from "effect/Effect"
-import * as Fiber from "effect/Fiber"
+import { Effect, Fiber } from "effect"
 
 const program = Effect.gen(function*() {
-  const fiber = yield* Effect.forkChild(Effect.succeed(1))
-  return yield* Fiber.join(fiber)
+  const fiber = yield* Effect.forkChild(longTask)
+  yield* doOtherWork
+  return yield* Fiber.join(fiber) // propagates the fiber's failure
+})
+
+// Background worker bound to a scope (e.g. inside Layer.effect)
+const worker = Effect.gen(function*() {
+  yield* pollQueue.pipe(Effect.forever, Effect.forkScoped)
 })
 ```
 
-## Keep-Alive (New in v4)
+## Fiber API (`effect/Fiber`)
 
-The runtime now automatically keeps the process alive while fibers are suspended. In v3, you needed `runMain` from `@effect/platform-node` to prevent process exit while fibers waited on things like `Deferred.await`. In v4, this is built-in:
+- `Fiber.join(fiber)` — wait; succeed/fail like the fiber.
+- `Fiber.await(fiber)` — wait; returns `Exit` (never fails).
+- `Fiber.interrupt(fiber)` — interrupt and wait for completion.
+  `Fiber.interruptAs(fiber, id)`.
+- `Fiber.joinAll`, `Fiber.awaitAll`, `Fiber.interruptAll`, `Fiber.interruptAllAs`.
+- `Fiber.runIn(fiber, scope)` — interrupt a manually-started fiber when the scope closes.
+- `Fiber.getCurrent()`, `Effect.fiber`, `Effect.fiberId` (a `number` in v4;
+  `FiberId` module removed).
+- Fiber object members: `id`, `pollUnsafe()`, `interruptUnsafe()`,
+  `addObserver(cb)`, `getRef(reference)`.
+
+`Fiber` is **not** an `Effect` subtype in v4: use `Fiber.join(fiber)`, not
+`yield* fiber` (`references/migration/yieldable.md`).
+
+## Racing
+
+| API | Winner | Losers |
+|---|---|---|
+| `Effect.race(a, b)` | first **success** (fails only if both fail) | interrupted |
+| `Effect.raceFirst(a, b)` | first **completion** (success or failure) | interrupted |
+| `Effect.raceAll(effects)` | first success | interrupted |
+| `Effect.raceAllFirst(effects)` | first completion | interrupted |
+
+All accept `{ onWinner?: ({ fiber, index, parentFiber }) => void }`.
+4.0.0 fix: losers are interrupted even if the race settles (or is interrupted)
+while other effects are still starting — no orphaned losers.
+v3 `Effect.raceWith` → `raceFirst` or fork both and inspect `Fiber.await`.
+
+Timeouts: `Effect.timeout(d)` (fails with `Cause.TimeoutError`),
+`Effect.timeoutOption(d)`, `Effect.timeoutOrElse({ duration, orElse })` (v3
+`timeoutFail` / `timeoutTo`). The source is fully interrupted before the
+fallback runs.
+
+## Fiber collections: FiberHandle, FiberSet, FiberMap
+
+Scoped containers that own fibers and interrupt them when the scope closes.
 
 ```ts
-import * as Deferred from "effect/Deferred"
-import * as Effect from "effect/Effect"
+import { Effect, FiberHandle, FiberMap, FiberSet } from "effect"
 
-const program = Effect.gen(function*() {
-  const deferred = yield* Deferred.make<string>()
-  yield* Deferred.await(deferred) // process stays alive in v4 without runMain
-})
+const program = Effect.scoped(Effect.gen(function*() {
+  // At most one fiber; run() interrupts the previous one
+  const handle = yield* FiberHandle.make()
+  yield* FiberHandle.run(handle, refreshLoop)
+  yield* FiberHandle.run(handle, refreshLoop, { onlyIfMissing: true }) // keep existing
 
-Effect.runPromise(program)
+  // Many fibers, removed automatically when they finish
+  const set = yield* FiberSet.make<void, WorkError>()
+  yield* FiberSet.run(set, job(1))
+  yield* FiberSet.run(set, job(2))
+  yield* FiberSet.awaitEmpty(set) // wait until all current fibers finish
+  // FiberSet.join(set): fails with the first fiber failure; it does NOT
+  // complete when fibers succeed (use it to "run until something fails")
+
+  // Keyed: run() with an existing key interrupts the old fiber
+  const map = yield* FiberMap.make<string>()
+  yield* FiberMap.run(map, "user-1", syncUser("user-1"))
+  yield* FiberMap.remove(map, "user-1")
+  yield* FiberMap.awaitEmpty(map)
+}))
 ```
 
-`runMain` is still recommended for signal handling (`SIGINT`/`SIGTERM`) and exit code management.
-
-## Wiring guide
-
-- Use `Effect.all` or `Effect.forEach` with `concurrency` for bounded parallelism.
-- Use `Effect.forkScoped` inside Layers or `Effect.scoped` blocks for background services.
-- Prefer `Fiber.join` to observe errors; use `Fiber.interrupt` for shutdown.
-- For `forkAll` replacements, use `Effect.forEach` or fork individually with `forkChild`.
+- `run` options: `onlyIfMissing` (Handle/Map), `propagateInterruption`,
+  `startImmediately`.
+- `FiberSet.runtime(set)<R>()` / `FiberMap.runtime` / `FiberHandle.runtime`
+  return a function that forks effects from non-Effect callbacks into the
+  collection (`runtimePromise` for a Promise result). `FiberSet.makeRuntime<R>()`
+  combines both.
+- Also: `clear`, `size`, `awaitEmpty`, `FiberMap.get/has`, `FiberHandle.get`.
 
 ## Pitfalls
 
-- Using removed `Effect.fork` (renamed to `Effect.forkChild` in v4).
-- Using removed `Effect.forkDaemon` (renamed to `Effect.forkDetach` in v4).
-- Forking without join/interrupt (leaks fibers).
-- Unbounded parallelism that overwhelms downstream systems.
-
-## Docs
-
-- `https://effect.website/docs/concurrency/basic-concurrency/`
-- `https://effect.website/docs/concurrency/fibers/`
-- `https://effect.website/docs/concurrency/queue/`
-- `https://effect.website/docs/concurrency/pubsub/`
+- v3 names: `Effect.fork`, `Effect.forkDaemon`, `Effect.forkAll`,
+  `Effect.withConcurrency`, `concurrency: "inherit"`, `mode: "either"`.
+- Assuming `partition` returns `[failures, successes]` (order flipped in 4.0.0).
+- Forking without an owner strategy: `forkDetach` leaks unless you keep the
+  fiber and interrupt it.
+- `Effect.scoped` around `forkScoped` that should live longer: the fiber is
+  interrupted when that scope closes.
+- Expecting `Effect.runPromise` to keep Node alive while fibers wait on
+  `Deferred`/`Queue` only — use `runMain` (see `runtime-execution.md`).
+- Unbounded parallelism against external systems; pick a number.
