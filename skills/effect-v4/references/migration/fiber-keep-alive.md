@@ -1,5 +1,12 @@
 # Fiber Keep-Alive: Automatic Process Lifetime Management
 
+> **Skill note (4.0.1):** this upstream guide predates effect-smol #1579, which
+> removed fiber-level keep-alive intervals. In 4.0.x only `runMain`
+> (`Runtime.makeRunMain`, used by `NodeRuntime`/`BunRuntime`/`DenoRuntime`)
+> keeps the process alive; `Effect.runPromise` / `Effect.runFork` do not. Use
+> `runMain` (or `Layer.launch` under `runMain`) for long-lived programs. See
+> `references/runtime-execution.md`.
+
 In v3, the core `effect` runtime did **not** keep the Node.js process alive while
 fibers were suspended on certain asynchronous operations. If a fiber was waiting on
 something like `Deferred.await` and there was no other work scheduled on the
